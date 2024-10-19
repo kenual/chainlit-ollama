@@ -1,0 +1,11 @@
+[project]
+name = "chainlit-ollama"
+version = "0.0.0"
+dependencies = ["chainlit"]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project.scripts]
+chainlit-app = "app:main"
