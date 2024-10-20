@@ -1,7 +1,7 @@
 [project]
 name = "chainlit-ollama"
 version = "0.0.0"
-dependencies = ["chainlit"]
+dependencies = ["chainlit", "ollama"]
 
 [build-system]
 requires = ["setuptools"]
