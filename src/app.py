@@ -45,10 +45,10 @@ async def on_message(message: cl.Message):
     message = {'role': 'user', 'content': message.content}
 
     assistant_response = cl.Message(content='')
-    await assistant_response.send()
     async for part in await AsyncClient().chat(model=chat_settings["Model"], messages=[message], stream=True):
-        assistant_response.content += part['message']['content']
-        await assistant_response.update()
+        await assistant_response.stream_token(part['message']['content'])
+
+    await assistant_response.send()
 
 
 def list_models() -> List[dict]:
