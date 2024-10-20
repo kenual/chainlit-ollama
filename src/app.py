@@ -8,40 +8,52 @@ import httpx
 import ollama
 from ollama import AsyncClient
 
-CHAT_SESSION_SETTINGS = "chat_settings"
+from config import load_config, dump_config
+
+CHAT_SETTINGS = "chat_settings"
+CONFIG = {
+    CHAT_SETTINGS: "settings.toml"
+}
 
 logger = logging.getLogger(__name__)
 
 
 @cl.on_chat_start
 async def start():
-    ollama_model_names = [ollama_model['model']
-                          for ollama_model in list_models()]
+    MODEL_ID = 'model'
+
+    settings = load_config(CONFIG[CHAT_SETTINGS])
+    ollama_model_names = [model_object['model'] for model_object in list_models()]
+    if MODEL_ID in settings:
+        selected_model = settings[MODEL_ID]
+    else:
+        selected_model = ollama_model_names[0]
+
     chat_settings = await cl.ChatSettings(
         [
             Select(
-                id="Model",
+                id=MODEL_ID,
                 label="Ollama Model",
                 values=ollama_model_names,
-                initial_index=0
+                initial_value=selected_model
             )
         ]
     ).send()
-    model = chat_settings["Model"]
-    logger.info(f"Model default to: {model}")
-    cl.user_session.set(CHAT_SESSION_SETTINGS, chat_settings)
+
+    logger.info(f"Chat settings: {chat_settings}")
+    cl.user_session.set(CHAT_SETTINGS, chat_settings)
 
 
 @cl.on_settings_update
 async def handle_settings_update(new_chat_settings):
-    model = new_chat_settings["Model"]
-    logger.info(f"Model changed to: {model}")
-    cl.user_session.set(CHAT_SESSION_SETTINGS, new_chat_settings)
+    dump_config(new_chat_settings, CONFIG[CHAT_SETTINGS])
+    logger.info(f"{CONFIG[CHAT_SETTINGS]} changed to: {new_chat_settings}")
+    cl.user_session.set(CHAT_SETTINGS, new_chat_settings)
 
 
 @cl.on_message
 async def on_message(message: cl.Message):
-    chat_settings = cl.user_session.get(CHAT_SESSION_SETTINGS)
+    chat_settings = cl.user_session.get(CHAT_SETTINGS)
     message = {'role': 'user', 'content': message.content}
 
     assistant_response = cl.Message(content='')
