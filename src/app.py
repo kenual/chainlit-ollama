@@ -8,6 +8,8 @@ import httpx
 import ollama
 from ollama import AsyncClient
 
+CHAT_SESSION_SETTINGS = "chat_settings"
+
 logger = logging.getLogger(__name__)
 
 
@@ -25,20 +27,26 @@ async def start():
             )
         ]
     ).send()
+    model = chat_settings["Model"]
+    logger.info(f"Model default to: {model}")
+    cl.user_session.set(CHAT_SESSION_SETTINGS, chat_settings)
 
 
 @cl.on_settings_update
-async def handle_settings_update(settings):
-    model = settings["Model"]
+async def handle_settings_update(new_chat_settings):
+    model = new_chat_settings["Model"]
     logger.info(f"Model changed to: {model}")
+    cl.user_session.set(CHAT_SESSION_SETTINGS, new_chat_settings)
 
 
 @cl.on_message
 async def on_message(message: cl.Message):
+    chat_settings = cl.user_session.get(CHAT_SESSION_SETTINGS)
     message = {'role': 'user', 'content': message.content}
+
     assistant_response = cl.Message(content='')
     await assistant_response.send()
-    async for part in await AsyncClient().chat(model='llama3.2:latest', messages=[message], stream=True):
+    async for part in await AsyncClient().chat(model=chat_settings["Model"], messages=[message], stream=True):
         assistant_response.content += part['message']['content']
         await assistant_response.update()
 
