@@ -1,7 +1,11 @@
 [project]
 name = "chainlit-ollama"
 version = "0.0.0"
-dependencies = ["chainlit", "ollama", "toml"]
+dependencies = ["chainlit", "ollama", "tiktoken", "toml"]
+
+[project.urls]
+homepage = "https://github.com/kenual/chainlit-ollama"
+repository = "https://github.com/kenual/chainlit-ollama"
 
 [build-system]
 requires = ["setuptools"]
