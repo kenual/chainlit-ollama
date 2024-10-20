@@ -17,7 +17,6 @@ def merge_sentences(single_sentence_list: list[str], max_tokens: int = 32768, en
     for sentence in single_sentence_list:
         chunk = current_merged_sentence + sentence if current_merged_sentence else sentence
         tokens = encoding.encode(chunk)
-        print(f'token length = {len(tokens)}')
         if len(tokens) < max_tokens:
             current_merged_sentence = chunk
         else:

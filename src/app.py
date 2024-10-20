@@ -9,6 +9,7 @@ import ollama
 from ollama import AsyncClient
 
 from config import load_config, dump_config
+from sentence import sentence_split, merge_sentences
 
 CHAT_SETTINGS = 'chat_settings'
 CONFIG = {
@@ -54,10 +55,13 @@ async def handle_settings_update(new_chat_settings):
 @cl.on_message
 async def on_message(message: cl.Message):
     chat_settings = cl.user_session.get(CHAT_SETTINGS)
-    message = {'role': 'user', 'content': message.content}
+
+    chunks = merge_sentences(sentence_split(message.content))
+    messages = [{'role': 'user', 'content': chunk} for chunk in chunks]
+    logger.info(f'{len(messages)} user message chunks')
 
     assistant_response = cl.Message(content='')
-    async for part in await AsyncClient().chat(model=chat_settings[MODEL_ID], messages=[message], stream=True):
+    async for part in await AsyncClient().chat(model=chat_settings[MODEL_ID], messages=messages, stream=True):
         await assistant_response.stream_token(part['message']['content'])
 
     await assistant_response.send()
