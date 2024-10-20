@@ -10,20 +10,20 @@ from ollama import AsyncClient
 
 from config import load_config, dump_config
 
-CHAT_SETTINGS = "chat_settings"
+CHAT_SETTINGS = 'chat_settings'
 CONFIG = {
-    CHAT_SETTINGS: "settings.toml"
+    CHAT_SETTINGS: 'settings.toml'
 }
+MODEL_ID = 'model'
 
 logger = logging.getLogger(__name__)
 
 
 @cl.on_chat_start
 async def start():
-    MODEL_ID = 'model'
-
     settings = load_config(CONFIG[CHAT_SETTINGS])
-    ollama_model_names = [model_object['model'] for model_object in list_models()]
+    ollama_model_names = [model_object['model']
+                          for model_object in list_models()]
     if MODEL_ID in settings:
         selected_model = settings[MODEL_ID]
     else:
@@ -57,7 +57,7 @@ async def on_message(message: cl.Message):
     message = {'role': 'user', 'content': message.content}
 
     assistant_response = cl.Message(content='')
-    async for part in await AsyncClient().chat(model=chat_settings["Model"], messages=[message], stream=True):
+    async for part in await AsyncClient().chat(model=chat_settings[MODEL_ID], messages=[message], stream=True):
         await assistant_response.stream_token(part['message']['content'])
 
     await assistant_response.send()
