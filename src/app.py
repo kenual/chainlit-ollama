@@ -6,6 +6,7 @@ from chainlit.cli import run_chainlit
 from chainlit.input_widget import Select
 import httpx
 import ollama
+from ollama import AsyncClient
 
 logger = logging.getLogger(__name__)
 
@@ -14,7 +15,7 @@ logger = logging.getLogger(__name__)
 async def start():
     ollama_model_names = [ollama_model['model']
                           for ollama_model in list_models()]
-    settings = await cl.ChatSettings(
+    chat_settings = await cl.ChatSettings(
         [
             Select(
                 id="Model",
@@ -34,7 +35,12 @@ async def handle_settings_update(settings):
 
 @cl.on_message
 async def on_message(message: cl.Message):
-    await cl.Message(content=f"Received: {message.content}").send()
+    message = {'role': 'user', 'content': message.content}
+    assistant_response = cl.Message(content='')
+    await assistant_response.send()
+    async for part in await AsyncClient().chat(model='llama3.2:latest', messages=[message], stream=True):
+        assistant_response.content += part['message']['content']
+        await assistant_response.update()
 
 
 def list_models() -> List[dict]:
