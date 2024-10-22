@@ -1,2 +1,3 @@
-You are an expert in LLM prompt engineering. Please optimize the following prompt for clarity and performance:
+As a prompt engineering expert, refine the following prompt to enhance clarity, engagement, and the response quality.
+Enhance its structure, specificity, and context as needed. Drop personalization.
 ---
