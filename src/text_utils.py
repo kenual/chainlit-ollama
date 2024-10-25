@@ -27,3 +27,9 @@ def merge_sentences(single_sentence_list: list[str], context_length: int = 4096,
         merged_sentence_list.append(current_merged_sentence)
 
     return merged_sentence_list
+
+
+def extract_parameter_strings(template: str) -> list[str]:
+    # Extract all sub-strings enclosed by { }
+    matches = re.findall(r'\{(.*?)\}', template, re.DOTALL)
+    return matches
