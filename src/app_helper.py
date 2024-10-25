@@ -25,7 +25,7 @@ async def initialize_session_chat_settings() -> None:
         selected_model = settings[MODEL_ID]
         if selected_model not in ollama_model_names:
             new_model = ollama_model_names[0]
-            logger.warning(f'Model {selected_model} is not available. Default to {new_model}')
+            logger.warning(f"Model '{selected_model}' is not available. Default to use '{new_model}'")
             selected_model = new_model
     else:
         selected_model = ollama_model_names[0]
