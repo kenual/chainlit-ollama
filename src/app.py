@@ -32,7 +32,8 @@ async def on_message(message: cl.Message):
     logger.info(f'{len(chunks)} user message chunks')
 
     model = chat_settings[MODEL_ID]
-    assistant_response = cl.Message(content='', author=model)
+    translation_table = str.maketrans({'.': '_', ':': '#'})
+    assistant_response = cl.Message(content='', author=model.translate(translation_table))
     async for part in await AsyncClient().chat(model=model, messages=messages, stream=True):
         await assistant_response.stream_token(part['message']['content'])
 
