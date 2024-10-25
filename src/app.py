@@ -25,9 +25,11 @@ async def handle_settings_update(new_chat_settings: dict[str, Any]):
 async def on_message(message: cl.Message):
     chat_settings = cl.user_session.get('chat_settings')
 
+    messages = cl.chat_context.to_openai()
     chunks = merge_sentences(sentence_split(message.content))
-    messages = [{'role': 'user', 'content': chunk} for chunk in chunks]
-    logger.info(f'{len(messages)} user message chunks')
+    for chunk in chunks:
+        messages.append({"role": "user", "content": chunk})
+    logger.info(f'{len(chunks)} user message chunks')
 
     model = chat_settings[MODEL_ID]
     assistant_response = cl.Message(content='', author=model)
