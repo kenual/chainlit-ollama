@@ -6,7 +6,7 @@ from chainlit.cli import run_chainlit
 from ollama import AsyncClient
 
 from app_helper import MODEL_ID, initialize_session_chat_settings, update_session_chat_settings
-from sentence import sentence_split, merge_sentences
+from text_utils import sentence_split, merge_sentences
 
 logger = logging.getLogger(__name__)
 
