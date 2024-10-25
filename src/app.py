@@ -29,8 +29,9 @@ async def on_message(message: cl.Message):
     messages = [{'role': 'user', 'content': chunk} for chunk in chunks]
     logger.info(f'{len(messages)} user message chunks')
 
-    assistant_response = cl.Message(content='')
-    async for part in await AsyncClient().chat(model=chat_settings[MODEL_ID], messages=messages, stream=True):
+    model = chat_settings[MODEL_ID]
+    assistant_response = cl.Message(content='', author=model)
+    async for part in await AsyncClient().chat(model=model, messages=messages, stream=True):
         await assistant_response.stream_token(part['message']['content'])
 
     await assistant_response.send()
