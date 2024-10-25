@@ -8,7 +8,7 @@ def sentence_split(text: str) -> list[str]:
     return single_sentence_list
 
 
-def merge_sentences(single_sentence_list: list[str], max_tokens: int = 32768, encoding_name: str = 'o200k_base') -> list[str]:
+def merge_sentences(single_sentence_list: list[str], context_length: int = 4096, encoding_name: str = 'o200k_base') -> list[str]:
     merged_sentence_list = []
 
     encoding = tiktoken.get_encoding(encoding_name)
@@ -17,7 +17,7 @@ def merge_sentences(single_sentence_list: list[str], max_tokens: int = 32768, en
     for sentence in single_sentence_list:
         chunk = current_merged_sentence + sentence if current_merged_sentence else sentence
         tokens = encoding.encode(chunk)
-        if len(tokens) < max_tokens:
+        if len(tokens) < context_length:
             current_merged_sentence = chunk
         else:
             merged_sentence_list.append(current_merged_sentence)
