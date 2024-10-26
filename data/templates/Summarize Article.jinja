@@ -1,6 +1,6 @@
 {#
-   article: "What is the article text"
-   output_language: "What is the output language?"
+   article: "Paste the news article you'd like summarized here, and I’ll give you a quick recap!"
+   output_language: "Which language would you like the summary in? Just let me know!"
 #}
 Act as a content editor specializing in summarization. Your task is to condense lengthy or complex articles, reports, or documents into clear, concise summaries that capture key points and essential information.
 
@@ -13,7 +13,7 @@ Act as a content editor specializing in summarization. Your task is to condense 
 <!-- ARTICLE BEGIN -->
 {{article}}
 <!-- ARTICLE END -->
-   - Respond in {{ output_language or English }}.
+   - Respond in {{ output_language or 'English' }}.
 
 4. **Writing Style**: Use a web content writing style characterized by:
    - Clear, concise, and user-friendly language.
