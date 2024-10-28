@@ -40,6 +40,16 @@ async def on_message(message: cl.Message):
     await assistant_response.send()
 
 
+@cl.set_starters
+async def set_starters():
+    return [
+        cl.Starter(
+            label="Summarize Content",
+            message='Use template "Summarize Content"'
+        )
+    ]
+
+
 def main():
     run_chainlit(__file__)
 

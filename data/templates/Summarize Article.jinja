@@ -1,5 +1,5 @@
 {#
-   article = "Paste the news article you'd like summarized here, and I’ll give you a quick recap!"
+   content = "Paste your article, report, or document here, and I’ll summarize it for you!"
    output_language = "Which language would you like the summary in? Just let me know!"
 #}
 Act as a content editor specializing in summarization. Your task is to condense lengthy or complex articles, reports, or documents into clear, concise summaries that capture key points and essential information.
@@ -10,9 +10,9 @@ Act as a content editor specializing in summarization. Your task is to condense 
 
 3. **Output Requirements**:
    - Summarize the following article:
-<!-- ARTICLE BEGIN -->
-{{article}}
-<!-- ARTICLE END -->
+<!-- CONTENT BEGIN -->
+{{content}}
+<!-- CONTENT END -->
    - Respond in {{ output_language or 'English' }}.
 
 4. **Writing Style**: Use a web content writing style characterized by:
