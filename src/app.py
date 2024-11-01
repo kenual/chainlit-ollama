@@ -5,8 +5,7 @@ import chainlit as cl
 from chainlit.cli import run_chainlit
 from ollama import AsyncClient
 
-from app_helper import MODEL_ID, initialize_session_chat_settings, update_session_chat_settings
-from text_utils import sentence_split, merge_sentences
+from app_helper import MODEL_ID, append_message_to_session_history, initialize_session_chat_settings, update_session_chat_settings
 
 logger = logging.getLogger(__name__)
 
@@ -25,11 +24,7 @@ async def handle_settings_update(new_chat_settings: dict[str, Any]):
 async def on_message(message: cl.Message):
     chat_settings = cl.user_session.get('chat_settings')
 
-    messages = cl.chat_context.to_openai()
-    chunks = merge_sentences(sentence_split(message.content))
-    for chunk in chunks:
-        messages.append({"role": "user", "content": chunk})
-    logger.info(f'{len(chunks)} user message chunks')
+    messages = append_message_to_session_history(message.content)
 
     model = chat_settings[MODEL_ID]
     translation_table = str.maketrans({'.': '_', ':': '#'})

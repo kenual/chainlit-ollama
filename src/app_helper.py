@@ -1,5 +1,5 @@
 import logging
-from typing import Any, List
+from typing import Any, Dict, List
 
 import chainlit as cl
 from chainlit.input_widget import Select
@@ -7,6 +7,7 @@ import httpx
 import ollama
 
 from config import dump_config, load_config
+from text_utils import merge_sentences, sentence_split
 
 APP_SETTINGS = 'app_settings'
 CONFIG = {
@@ -57,3 +58,13 @@ def list_models() -> List[dict]:
     except httpx.ConnectError as error:
         logger.error(f"Ollama server connect error: {error}")
         return [{'model': 'None'}]
+
+
+def append_message_to_session_history(message: str) -> List[Dict[str, str]]:
+    # get current chat history from session storage
+    messages = cl.chat_context.to_openai()
+    chunks = merge_sentences(sentence_split(message))
+    for chunk in chunks:
+        messages.append({"role": "user", "content": chunk})
+    logger.info(f'{len(chunks)} user message chunks')
+    return messages
