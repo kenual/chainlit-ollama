@@ -5,6 +5,7 @@ import chainlit as cl
 from chainlit.input_widget import Select
 import httpx
 import ollama
+from ollama import AsyncClient
 
 from config import dump_config, load_config
 from text_utils import merge_sentences, sentence_split
@@ -68,3 +69,13 @@ def append_message_to_session_history(message: str) -> List[Dict[str, str]]:
         messages.append({"role": "user", "content": chunk})
     logger.info(f'{len(chunks)} user message chunks')
     return messages
+
+
+async def chat_messages_send_response(model: str, messages: List[Dict[str, str]]) -> None:
+    translation_table = str.maketrans({'.': '_', ':': '#'})
+    assistant_response = cl.Message(
+        content='', author=model.translate(translation_table))
+    async for part in await AsyncClient().chat(model=model, messages=messages, stream=True):
+        await assistant_response.stream_token(part['message']['content'])
+
+    await assistant_response.send()

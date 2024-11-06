@@ -5,7 +5,7 @@ import chainlit as cl
 from chainlit.cli import run_chainlit
 from ollama import AsyncClient
 
-from app_helper import MODEL_ID, append_message_to_session_history, initialize_session_chat_settings, update_session_chat_settings
+from app_helper import MODEL_ID, append_message_to_session_history, chat_messages_send_response, initialize_session_chat_settings, update_session_chat_settings
 
 logger = logging.getLogger(__name__)
 
@@ -27,12 +27,7 @@ async def on_message(message: cl.Message):
     messages = append_message_to_session_history(message.content)
 
     model = chat_settings[MODEL_ID]
-    translation_table = str.maketrans({'.': '_', ':': '#'})
-    assistant_response = cl.Message(content='', author=model.translate(translation_table))
-    async for part in await AsyncClient().chat(model=model, messages=messages, stream=True):
-        await assistant_response.stream_token(part['message']['content'])
-
-    await assistant_response.send()
+    await chat_messages_send_response(model=model, messages=messages)
 
 
 @cl.set_starters
