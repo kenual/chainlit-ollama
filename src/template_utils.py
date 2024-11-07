@@ -32,3 +32,14 @@ def extract_template_vars(name: str) -> Dict[str, str]:
             raise e
     else:
         {}
+
+
+def extract_template_name(command: str) -> str:
+    # Regular expression to match the template name (a phrase enclosed in quotes or after the word "template")
+    match = re.search(
+        r'(?:template\s*["\']?)([\w\s]+)(?:["\']?)', command, re.IGNORECASE)
+
+    if match:
+        return match.group(1).strip()
+    else:
+        return None
