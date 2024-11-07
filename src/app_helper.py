@@ -79,3 +79,10 @@ async def chat_messages_send_response(model: str, messages: List[Dict[str, str]]
         await assistant_response.stream_token(part['message']['content'])
 
     await assistant_response.send()
+
+
+def prompt_to_fill_template(command: str) -> Dict[str, str]:
+    # get current chat history from session storage
+    messages = cl.chat_context.to_openai()
+
+    return {}
