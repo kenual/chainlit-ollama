@@ -158,5 +158,8 @@ cython_debug/
 .chainlit/
 chainlit.md
 
+# VSCode files
+.vscode/
+
 # User configuration files
 config/
