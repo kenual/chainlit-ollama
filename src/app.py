@@ -25,7 +25,8 @@ async def on_message(message: cl.Message):
     chat_settings = cl.user_session.get('chat_settings')
 
     if 'template' in message.content.lower():
-        prompt_to_fill_template(command=message.content)
+        await prompt_to_fill_template(command=message.content)
+        return
 
     messages = append_message_to_session_history(message.content)
 
@@ -38,7 +39,7 @@ async def set_starters():
     return [
         cl.Starter(
             label="Summarize text",
-            message='Use the "Summarize Content" template to summarize text',
+            message='Use template "Summarize Content" to summarize text',
         )
     ]
 

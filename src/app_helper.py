@@ -8,6 +8,7 @@ import ollama
 from ollama import AsyncClient
 
 from config import dump_config, load_config
+from template_utils import extract_template_name, extract_template_vars
 from text_utils import merge_sentences, sentence_split
 
 APP_SETTINGS = 'app_settings'
@@ -81,8 +82,18 @@ async def chat_messages_send_response(model: str, messages: List[Dict[str, str]]
     await assistant_response.send()
 
 
-def prompt_to_fill_template(command: str) -> Dict[str, str]:
+async def prompt_to_fill_template(command: str) -> Dict[str, str]:
     # get current chat history from session storage
     messages = cl.chat_context.to_openai()
 
-    return {}
+    template = extract_template_name(command=command)
+    params = extract_template_vars(name=template)
+
+    template_params = {}
+    for key, value in params.items():
+         user_response = await cl.AskUserMessage(content=value).send()
+         if user_response:
+             template_params[key] = user_response['output']
+
+    print(template_params)
+    return template_params
