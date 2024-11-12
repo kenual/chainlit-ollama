@@ -25,10 +25,10 @@ async def on_message(message: cl.Message):
     chat_settings = cl.user_session.get('chat_settings')
 
     if 'template' in message.content.lower():
-        await prompt_to_fill_template(command=message.content)
-        return
-
-    messages = append_message_to_session_history(message.content)
+        template_message = await prompt_to_fill_template(command=message.content)
+        messages = append_message_to_session_history(template_message)
+    else:
+        messages = append_message_to_session_history(message.content)
 
     model = chat_settings[MODEL_ID]
     await chat_messages_send_response(model=model, messages=messages)
