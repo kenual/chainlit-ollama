@@ -2,6 +2,7 @@ import logging
 import re
 from typing import Dict
 
+from jinja2 import Environment, FileSystemLoader
 import toml
 
 TEMPLATES_DIR = 'data/templates'
@@ -9,13 +10,18 @@ TEMPLATES_DIR = 'data/templates'
 logger = logging.getLogger(__name__)
 
 
-def get_template(name: str) -> str:
-    with open(f"{TEMPLATES_DIR}/{name}.jinja", "r") as f:
+def get_template_file_name(name: str, path: str = TEMPLATES_DIR) -> str:
+    file_name = f'{path}/' if path else ''
+    file_name += f'{name}.jinja' if not name.endswith('.jinja') else name
+    return (file_name)
+
+def get_template_content(name: str) -> str:
+    with open(get_template_file_name(name=name), "r") as f:
         return f.read()
 
 
 def extract_template_vars(name: str) -> Dict[str, str]:
-    template = get_template(name)
+    template = get_template_content(name)
 
     # Regular expression to extract the TOML parameters
     pattern = r'\{#(.*?)#\}'
@@ -43,3 +49,11 @@ def extract_template_name(command: str) -> str:
         return match.group(1).strip()
     else:
         return None
+
+
+def render_template_with_vars(name: str, context: Dict[str, str]) -> str:
+    # Render the template with the context variables
+    env = Environment(loader=FileSystemLoader(searchpath=TEMPLATES_DIR))
+    template = env.get_template(get_template_file_name(name=name, path=None))
+    output = template.render(context)
+    return output
