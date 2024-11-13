@@ -26,6 +26,7 @@ async def on_message(message: cl.Message):
 
     if 'template' in message.content.lower():
         template_message = await prompt_to_fill_template(command=message.content)
+        await cl.Message(content=template_message, type="user_message").send()
         messages = append_message_to_session_history(template_message)
     else:
         messages = append_message_to_session_history(message.content)
