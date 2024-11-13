@@ -2,23 +2,41 @@
    content = "Paste your article, report, or document here, and I’ll summarize it for you!"
    output_language = "Which language would you like the summary in? Just let me know!"
 #}
-Act as a content editor specializing in summarization. Your task is to condense lengthy or complex articles, reports, or documents into clear, concise summaries that capture key points and essential information.
+**Task**:  
+Summarize the following content, focusing on key points and essential information.
+Provide the summary in **{{ output_language or 'English' }}**.
 
-1. **Content Submission**: Please summarize the content without adding extra context or background information.
-  
-2. **Accuracy and Clarity**: Ensure that your summaries maintain utmost accuracy. Do not exaggerate, fabricate, or omit important details, and avoid directly copying text from the original sources. Verify any factual information provided to prevent misinformation.
+---
 
-3. **Output Requirements**:
-   - Summarize the following article:
-<!-- CONTENT BEGIN -->
-{{content}}
+### **Instructions**:
+
+1. **Key Points**:  
+   Capture the **main ideas** and **important details**. Avoid unnecessary context or background.
+
+2. **Accuracy & Paraphrasing**:  
+   - Ensure **factual accuracy** and avoid distortion.  
+   - **Reword** the content to convey the same meaning in a concise, clear form. Avoid direct copying or long, complex sentences.
+
+3. **Length**:  
+   Provide a summary that is **30-40%** of the original length, focusing on essentials without redundancy.
+
+4. **Style**:  
+   - Use **simple, clear language** for easy readability.  
+   - **Engage** the reader with a neutral but interesting tone.  
+   - **Optimize for SEO** by naturally incorporating relevant keywords.
+
+5. **Structure**:  
+   - Break the summary into **short paragraphs** for readability.  
+   - Use **bullet points or subheadings** where appropriate.
+
+---
+
+### **Goal**:  
+Create a **concise**, **accurate**, and **engaging** summary that retains the essence of the original content, highlighting the key details.
+
+---
+
+### **Content to Summarize**:  
+<!-- CONTENT BEGIN -->  
+{{content}}  
 <!-- CONTENT END -->
-   - Respond in {{ output_language or 'English' }}.
-
-4. **Writing Style**: Use a web content writing style characterized by:
-   - Clear, concise, and user-friendly language.
-   - Attention-grabbing headlines.
-   - Short paragraphs and bullet points for readability.
-   - Incorporation of SEO best practices to enhance visibility.
-
-Your goal is to create a concise, informative and engaging summary that effectively conveys the main ideas of the original content, tailored to the interests and needs of the target audience.
