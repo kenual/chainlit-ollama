@@ -62,13 +62,23 @@ def list_models() -> List[dict]:
         return [{'model': 'None'}]
 
 
-def append_message_to_session_history(message: str) -> List[Dict[str, str]]:
+def append_message_to_session_history(message: str, elements: List = None) -> List[Dict[str, str]]:
     # get current chat history from session storage
     messages = cl.chat_context.to_openai()
+    if elements:
+        images = [file.path for file in elements if "image" in file.mime]
+    else:
+        images = None
+
     chunks = merge_sentences(sentence_split(message))
-    for chunk in chunks:
-        messages.append({"role": "user", "content": chunk})
+    for index, chunk in enumerate(chunks):
+        message = {"role": "user", "content": chunk}
+        # Add images to the first chunk
+        if index == 0 and images:
+            message["images"] = images
+        messages.append(message)        
     logger.info(f'{len(chunks)} user message chunks')
+
     return messages
 
 

@@ -29,7 +29,7 @@ async def on_message(message: cl.Message):
         await cl.Message(content=template_message, type="user_message").send()
         messages = append_message_to_session_history(template_message)
     else:
-        messages = append_message_to_session_history(message.content)
+        messages = append_message_to_session_history(message.content, message.elements)
 
     model = chat_settings[MODEL_ID]
     await chat_messages_send_response(model=model, messages=messages)
