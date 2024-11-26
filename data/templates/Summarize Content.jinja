@@ -2,43 +2,49 @@
    content = "Paste your article, report, or document here, and I’ll summarize it for you!"
    output_language = "Which language would you like the summary in? Just let me know!"
 #}
-**Task**:  
-Summarize the following content, focusing on key points and essential information.
+<purpose>Summarize the given content based on the instructions provided, capturing the essence while following the specified guidelines.</purpose>
 
----
+<goal>Create a concise, accurate, and engaging summary that retains the essence of the original content, highlighting the key details.</goal>
 
-### **Instructions**:
+<instructions>
+    <instruction>Capture the main ideas and important details. Avoid unnecessary context or background.</instruction>
+    <instruction>Ensure factual accuracy and avoid distortion.</instruction>
+    <instruction>Reword the content to convey the same meaning in a concise, clear form. Avoid direct copying or long, complex sentences.</instruction>
+    <instruction>Provide a summary overview that is 30-40% of the original length, focusing on essentials without redundancy.</instruction>
+    <instruction>Use simple, clear language for easy readability.</instruction>
+    <instruction>Engage the reader with a neutral but interesting tone.</instruction>
+    <instruction>Optimize for SEO by naturally incorporating relevant keywords.</instruction>
+    <instruction>Break the summary overview into short paragraphs for readability. Use bullet points or subheadings where appropriate.</instruction>
+</instructions>
 
-1. **Key Points**:  
-   Capture the **main ideas** and **important details**. Avoid unnecessary context or background.
+<content>
+{{content}}
+</content>
 
-2. **Accuracy & Paraphrasing**:  
-   - Ensure **factual accuracy** and avoid distortion.  
-   - **Reword** the content to convey the same meaning in a concise, clear form. Avoid direct copying or long, complex sentences.
+<output-format>
+    <sections>
+        <section>Title</section>
+        <section>Overview</section>
+        <section>Key Takeaways</section>
+        <section>Tone</section>
+        <section>Support for the Author</section>
+        <section>Criticisms of the Author</section>
+    </sections>
+    <format>Markdown</format>
+</output-format>
 
-3. **Length**:  
-   Provide a summary that is **30-40%** of the original length, focusing on essentials without redundancy.
+<example>
+    <![CDATA[
+    ## Title
 
-4. **Style**:  
-   - Use **simple, clear language** for easy readability.  
-   - **Engage** the reader with a neutral but interesting tone.  
-   - **Optimize for SEO** by naturally incorporating relevant keywords.
+    ### Overview
 
-5. **Structure**:  
-   - Break the summary into **short paragraphs** for readability.  
-   - Use **bullet points or subheadings** where appropriate.
+    ### Key Takeaways
 
-6. **Output Language**:  
-   - Ensure the summary is in **{{ output_language or 'English' }}**.
+    ### Tone
 
----
+    ### Support for the Author
 
-### **Goal**:  
-Create a **concise**, **accurate**, and **engaging** summary that retains the essence of the original content, highlighting the key details.
-
----
-
-### **Content to Summarize**:  
-<!-- CONTENT BEGIN -->  
-{{content}}  
-<!-- CONTENT END -->
+    ### Criticisms of the Author
+    ]]>
+</example>
