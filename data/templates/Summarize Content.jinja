@@ -1,51 +1,39 @@
 {#
    content = "Paste your article, report, or document here, and I’ll summarize it for you!"
 #}
-<purpose>Summarize the provided content concisely and accurately, capturing the core message while excluding unnecessary details</purpose>
+<purpose>
+    Summarize the provided content concisely and clearly, highlighting the core message, while maintaining a structured layout for easy readability
+</purpose>
 
 <instructions>
-    <instruction>Focus on the core ideas and key points; omit background or excessive details</instruction>
-    <instruction>Ensure factual accuracy and avoid personal opinions or speculation</instruction>
-    <instruction>Rephrase clearly and concisely using simple language; avoid long-winded sentences</instruction>
-    <instruction>Limit the summary to 30-40% of the original length, removing redundant information</instruction>
-    <instruction>Maintain readability with clear, straightforward language, and avoid jargon unless necessary</instruction>
-    <instruction>Keep the tone neutral, objective, and engaging</instruction>
-    <instruction>Enhance readability with bullet points or subheadings when appropriate</instruction>
-    <instruction>Incorporate relevant keywords for SEO, prioritizing clarity</instruction>
+    <instruction>Concise Summary: Reduce the content to 30-40% of its original length, maintaining focus on the most relevant pointst</instruction>
+    <instruction>Output in Markdown</instruction>
+    <instruction>
+        Summarize into sections as the example-output:
+        - Title: Concise, engaging headline that reflects the main theme of the content.
+        - Overview: A brief summary of the key topic and purpose of the content.
+        - Key Takeaways: A bullet-point list of the main points or insights. Focus on the most critical elements.
+        - Additional Notes: Optional section for any extra details that provide further context but aren't central to the main points
+    </instruction>
+    <instruction>Use Simple, Clear Language: Avoid jargon and keep sentences straightforward</instruction>
+    <instruction>Neutral Tone: Maintain an objective, factual tone without personal opinions</instruction>
+    <instruction>SEO Optimization: Include relevant keywords where appropriate</instruction>
 </instructions>
 
+<example-output>
+
+    # Title
+
+    ## Overview
+    ...
+
+    ## Key Takeaways
+    ...
+
+    ### Additional Notes
+    ...
+</example-output>
+
 <content>
-{{content}}
+    {{content}}
 </content>
-
-<output-format>
-    <sections>
-        <section>Title</section>
-        <section>Overview</section>
-        <section>Key Takeaways</section>
-        <section>Support for the Author</section>
-        <section>Criticisms of the Author</section>
-    </sections>
-    <format>Markdown</format>
-</output-format>
-
-<example>
-    <![CDATA[
-## Title  
-(Brief, clear headline)
-
-### Overview  
-(Summary of key ideas)
-
-### Key Takeaways  
-- (Bullet point list of the key points and insights)
-
-___
-
-### Support for the Author
-(Arguments supporting the author's position)
-
-### Criticisms of the Author
-(Counterarguments or criticisms of the author’s ideas)
-    ]]>
-</example>
