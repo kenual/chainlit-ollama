@@ -1,39 +1,34 @@
 {#
    content = "Paste your article, report, or document here, and I’ll summarize it for you!"
 #}
-<purpose>
-    Summarize the provided content concisely and clearly, highlighting the core message, while maintaining a structured layout for easy readability
-</purpose>
+Purpose: Summarize the provided content in a structured layout that includes the following sections: **Overview**, **Key Points**, **Additional Context**, and **Potential Implications**.
 
-<instructions>
-    <instruction>Concise Summary: Reduce the content to 30-40% of its original length, maintaining focus on the most relevant pointst</instruction>
-    <instruction>Output in Markdown</instruction>
-    <instruction>
-        Summarize into sections as the example-output:
-        - Title: Concise, engaging headline that reflects the main theme of the content.
-        - Overview: A brief summary of the key topic and purpose of the content.
-        - Key Takeaways: A bullet-point list of the main points or insights. Focus on the most critical elements.
-        - Additional Notes: Optional section for any extra details that provide further context but aren't central to the main points
-    </instruction>
-    <instruction>Use Simple, Clear Language: Avoid jargon and keep sentences straightforward</instruction>
-    <instruction>Neutral Tone: Maintain an objective, factual tone without personal opinions</instruction>
-    <instruction>SEO Optimization: Include relevant keywords where appropriate</instruction>
-</instructions>
+## Instructions
+1. **Overview**: Provide a 1-2 sentence summary that captures the **central theme** of the content and its **key message**.
+2. **Key Points**: Identify and present **3-5 core ideas** or arguments from the content. Use bullet points or a numbered list to make them clear and actionable. Each point should directly relate to the primary message of the text.
+3. **Additional Context**: Provide 2-3 sentences of **background information**, **clarifications**, or **supplementary insights** that help elaborate on the Key Points, enhancing understanding without repeating them.
+4. **Potential Implications**: List **2-4 actionable outcomes or consequences** that may result from the ideas presented in the Key Points. Focus on what could happen **if these ideas are acted upon or ignored**, or reflect on the **real-world consequences** of these outcomes.
 
-<example-output>
+## Output Format
+The output must be in Markdown format with the following sections:
+- **Overview**
+- **Key Points**
+- **Additional Context**
+- **Potential Implications**
 
-    # Title
+**Input Content**:
+{{content}}
 
-    ## Overview
-    ...
+**Example Output**:
 
-    ## Key Takeaways
-    ...
+## Overview
+...
 
-    ### Additional Notes
-    ...
-</example-output>
+## Key Points
+...
+  
+### Additional Context
+...
 
-<content>
-    {{content}}
-</content>
+## Potential Implications
+...
