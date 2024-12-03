@@ -6,6 +6,7 @@ from chainlit.cli import run_chainlit
 from ollama import AsyncClient
 
 from app_helper import MODEL_ID, append_message_to_session_history, chat_messages_send_response, initialize_session_chat_settings, prompt_to_fill_template, update_session_chat_settings
+from template_utils import list_templates
 
 logger = logging.getLogger(__name__)
 
@@ -39,9 +40,9 @@ async def on_message(message: cl.Message):
 async def set_starters():
     return [
         cl.Starter(
-            label="Summarize text",
-            message='Use template "Summarize Content" to summarize text',
-        )
+            label=template,
+            message=f'Use template "{template}" to {template.lower()}',
+        ) for template in list_templates()
     ]
 
 

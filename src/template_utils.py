@@ -1,6 +1,7 @@
 import logging
 import re
-from typing import Dict
+from pathlib import Path
+from typing import Dict, List
 
 from jinja2 import Environment, FileSystemLoader
 import toml
@@ -8,6 +9,12 @@ import toml
 TEMPLATES_DIR = 'data/templates'
 
 logger = logging.getLogger(__name__)
+
+
+def list_templates() -> List[str]:
+    templates_folder = Path(TEMPLATES_DIR)
+    jinja_file_names = [file.stem for file in sorted(templates_folder.glob('*.jinja'))]
+    return jinja_file_names
 
 
 def get_template_file_name(name: str, path: str = TEMPLATES_DIR) -> str:
