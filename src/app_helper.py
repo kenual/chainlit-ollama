@@ -52,11 +52,17 @@ async def update_session_chat_settings(settings: dict[str, Any]) -> None:
 def append_message_to_session_history(message: str, elements: List = None) -> List[Dict[str, str]]:
     # get current chat history from session storage
     messages = cl.chat_context.to_openai()
+    # ensure chat history does not duplicate the new message
+    last_message = messages[-1]
+    if last_message['role'] == 'user' and last_message['content'] == message:
+        messages = messages[:-1]
+
     if elements:
         images = [file.path for file in elements if "image" in file.mime]
     else:
         images = None
 
+    # split message into chunks and append to chat history
     chunks = merge_sentences(sentence_split(message))
     for index, chunk in enumerate(chunks):
         message = {"role": "user", "content": chunk}
@@ -65,6 +71,7 @@ def append_message_to_session_history(message: str, elements: List = None) -> Li
             message["images"] = images
         messages.append(message)        
     logger.info(f'{len(chunks)} user message chunks')
+    logger.info(messages)
 
     return messages
 
