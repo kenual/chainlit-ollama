@@ -3,11 +3,9 @@ from typing import Any, Dict, List
 
 import chainlit as cl
 from chainlit.input_widget import Select
-import httpx
-import ollama
-from ollama import AsyncClient
 
 from config import dump_config, load_config
+from llm_service import list_models
 from template_utils import extract_template_name, extract_template_vars, render_template_with_vars
 from text_utils import merge_sentences, sentence_split
 
@@ -51,17 +49,6 @@ async def update_session_chat_settings(settings: dict[str, Any]) -> None:
     logger.info(f"{CONFIG[APP_SETTINGS]} changed to: {settings}")
 
 
-def list_models() -> List[dict]:
-    # List available Ollama models
-    try:
-        response = ollama.list()
-        return response['models']
-
-    except httpx.ConnectError as error:
-        logger.error(f"Ollama server connect error: {error}")
-        return [{'model': 'None'}]
-
-
 def append_message_to_session_history(message: str, elements: List = None) -> List[Dict[str, str]]:
     # get current chat history from session storage
     messages = cl.chat_context.to_openai()
@@ -80,16 +67,6 @@ def append_message_to_session_history(message: str, elements: List = None) -> Li
     logger.info(f'{len(chunks)} user message chunks')
 
     return messages
-
-
-async def chat_messages_send_response(model: str, messages: List[Dict[str, str]]) -> None:
-    translation_table = str.maketrans({'.': '_', ':': '#'})
-    assistant_response = cl.Message(
-        content='', author=model.translate(translation_table))
-    async for part in await AsyncClient().chat(model=model, messages=messages, stream=True):
-        await assistant_response.stream_token(part['message']['content'])
-
-    await assistant_response.send()
 
 
 async def prompt_to_fill_template(command: str) -> str:

@@ -3,9 +3,9 @@ from typing import Any
 
 import chainlit as cl
 from chainlit.cli import run_chainlit
-from ollama import AsyncClient
 
-from app_helper import MODEL_ID, append_message_to_session_history, chat_messages_send_response, initialize_session_chat_settings, prompt_to_fill_template, update_session_chat_settings
+from app_helper import MODEL_ID, append_message_to_session_history, initialize_session_chat_settings, prompt_to_fill_template, update_session_chat_settings
+from llm_service import chat_messages_send_response
 from template_utils import list_templates
 
 logger = logging.getLogger(__name__)
