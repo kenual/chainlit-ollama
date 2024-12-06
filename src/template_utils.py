@@ -63,4 +63,4 @@ def render_template_with_vars(name: str, context: Dict[str, str]) -> str:
     env = Environment(loader=FileSystemLoader(searchpath=TEMPLATES_DIR))
     template = env.get_template(get_template_file_name(name=name, path=None))
     output = template.render(context)
-    return output
+    return output.strip()

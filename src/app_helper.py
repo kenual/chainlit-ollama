@@ -1,3 +1,4 @@
+import json
 import logging
 from typing import Any, Dict, List
 
@@ -71,7 +72,7 @@ def append_message_to_session_history(message: str, elements: List = None) -> Li
             message["images"] = images
         messages.append(message)        
     logger.info(f'{len(chunks)} user message chunks')
-    logger.info(messages)
+    logger.info(json.dumps(messages, indent=2))
 
     return messages
 
