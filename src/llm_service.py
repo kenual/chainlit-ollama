@@ -79,7 +79,6 @@ async def service_chat_messages_send_response(model: str, messages: List[Dict[st
                     part = json.loads(data)
                     if 'message' in part:
                         await assistant_response.stream_token(part['message'])
-                    else:
-                        await assistant_response.send()
                 else:
+                    await assistant_response.send()
                     logger.info(data)
