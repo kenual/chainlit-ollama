@@ -16,7 +16,8 @@ SERVICE_MODELS = [
         'model': "Cloud Service: meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo"},
     {'name': "mixtral-8x7b", 'model': "Cloud Service: mistralai/Mixtral-8x7B-Instruct-v0.1"}
 ]
-
+SERVICE_CHAT_CONTINUATION_HEADER_KEY = 'x-vqd-4'
+CHAT_SESSION_HEADERS = 'session_http_headers'
 
 def list_models() -> List[dict]:
 
@@ -46,8 +47,8 @@ async def chat_messages_send_response(model: str, messages: List[Dict[str, str]]
 
 
 def get_continuation_headers(response: httpx.Response) -> dict:
-    continuation_header_key = 'x-vqd-4'
-    return {continuation_header_key: response.headers.get(continuation_header_key, '')}
+    return {SERVICE_CHAT_CONTINUATION_HEADER_KEY:
+            response.headers.get(SERVICE_CHAT_CONTINUATION_HEADER_KEY, '')}
 
 
 async def service_chat_messages_send_response(model: str, messages: List[Dict[str, str]]) -> None:
@@ -57,11 +58,12 @@ async def service_chat_messages_send_response(model: str, messages: List[Dict[st
     assistant_response = cl.Message(
         content='', author=model.translate(translation_table))
 
-    response = httpx.get(
-        url='https://duckduckgo.com/duckchat/v1/status',
-        headers={'x-vqd-accept': '1'}
-    )
-    headers = get_continuation_headers(response)
+    headers = cl.user_session.get(CHAT_SESSION_HEADERS)
+    if headers is None:
+        response = httpx.get(url='https://duckduckgo.com/duckchat/v1/status',
+                             headers={'x-vqd-accept': '1'}
+                             )
+        headers = get_continuation_headers(response)
 
     client = httpx.AsyncClient()
     part = {
@@ -82,3 +84,6 @@ async def service_chat_messages_send_response(model: str, messages: List[Dict[st
                 else:
                     await assistant_response.send()
                     logger.info(data)
+
+        headers = get_continuation_headers(response)
+        cl.user_session.set(CHAT_SESSION_HEADERS, headers)
