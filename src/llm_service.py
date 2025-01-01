@@ -58,6 +58,7 @@ async def service_chat_messages_send_response(model: str, messages: List[Dict[st
         content='', author=model.translate(translation_table))
 
     headers = cl.user_session.get(CHAT_SESSION_HEADERS)
+    logging.info(f"Use continuation headers: {headers}")
     if headers is None:
         response = httpx.get(url='https://duckduckgo.com/duckchat/v1/status',
                              headers={'x-vqd-accept': '1'}
@@ -86,3 +87,4 @@ async def service_chat_messages_send_response(model: str, messages: List[Dict[st
 
         headers = get_continuation_headers(response)
         cl.user_session.set(CHAT_SESSION_HEADERS, headers)
+        logging.info(f"Set continuation headers: {headers}")
