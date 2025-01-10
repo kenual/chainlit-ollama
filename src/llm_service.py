@@ -3,7 +3,7 @@ import logging
 from typing import Dict, List
 import chainlit as cl
 import httpx
-from ollama import AsyncClient
+import litellm
 
 import ollama
 
@@ -39,10 +39,18 @@ async def chat_messages_send_response(model: str, messages: List[Dict[str, str]]
     translation_table = str.maketrans({'.': '_', ':': '#'})
     assistant_response = cl.Message(
         content='', author=model.translate(translation_table))
-    async for part in await AsyncClient().chat(model=model, messages=messages, stream=True):
-        await assistant_response.stream_token(part['message']['content'])
-
-    await assistant_response.send()
+    
+    async for part in await litellm.acompletion(
+        model=f"ollama_chat/{model}", 
+        messages=messages, 
+        api_base="http://localhost:11434", 
+        stream=True
+    ):
+        choice = part['choices'][0]
+        if choice['finish_reason'] == 'stop':
+            await assistant_response.send()
+        else:
+            await assistant_response.stream_token(part['choices'][0]['delta']['content'])
 
 
 def get_continuation_headers(response: httpx.Response) -> dict:

@@ -2,7 +2,14 @@
 name = "chainlit-ollama"
 version = "0.0.0"
 requires-python = ">=3.12"
-dependencies = ["chainlit", "ollama", "tiktoken", "toml", "Jinja2"]
+dependencies = [
+    "chainlit", 
+    "litellm", "async_generator", 
+    "ollama", 
+    "tiktoken", 
+    "toml", 
+    "Jinja2"
+]
 
 [project.urls]
 homepage = "https://github.com/kenual/chainlit-ollama"
