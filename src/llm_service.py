@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 from typing import Dict, List, Optional
 import chainlit as cl
 from dotenv import load_dotenv
@@ -11,13 +12,16 @@ logger = logging.getLogger(__name__)
 OLLAMA_API_BASE = "http://localhost:11434"
 
 SERVICE_MODELS = [
-    {'name': "cohere", 'model': "Cloud Service: command-r-plus-08-2024"},
     {'name': "claude-3-haiku", 'model': "Cloud Service: claude-3-haiku-20240307"},
     {'name': "gpt-4o-mini", 'model': "Cloud Service: gpt-4o-mini"},
     {'name': "llama-3.1-70b",
         'model': "Cloud Service: meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo"},
     {'name': "mixtral-8x7b", 'model': "Cloud Service: mistralai/Mixtral-8x7B-Instruct-v0.1"}
 ]
+if os.getenv('COHERE_API_KEY'):
+    SERVICE_MODELS.insert(
+        0, {'name': "cohere", 'model': "Cloud Service: command-r-plus-08-2024"})
+
 SERVICE_CHAT_CONTINUATION_HEADER_KEY = 'x-vqd-4'
 CHAT_SESSION_HEADERS = 'session_http_headers'
 
