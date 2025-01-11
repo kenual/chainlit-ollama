@@ -7,6 +7,9 @@ import litellm
 
 
 logger = logging.getLogger(__name__)
+
+OLLAMA_API_BASE = "http://localhost:11434"
+
 SERVICE_MODELS = [
     {'name': "claude-3-haiku", 'model': "Cloud Service: claude-3-haiku-20240307"},
     {'name': "gpt-4o-mini", 'model': "Cloud Service: gpt-4o-mini"},
@@ -21,7 +24,7 @@ def list_models() -> List[dict]:
 
     # List available Ollama models (https://github.com/ollama/ollama/blob/main/docs/api.md) and Cloud Service models.
     try:
-        response = httpx.get(url='http://localhost:11434/api/tags').json()
+        response = httpx.get(url=f'{OLLAMA_API_BASE}/api/tags').json()
         return response['models'] + SERVICE_MODELS
 
     except httpx.ConnectError as error:
@@ -42,7 +45,7 @@ async def chat_messages_send_response(model: str, messages: List[Dict[str, str]]
     async for part in await litellm.acompletion(
         model=f"ollama_chat/{model}", 
         messages=messages, 
-        api_base="http://localhost:11434", 
+        api_base=OLLAMA_API_BASE, 
         stream=True
     ):
         choice = part['choices'][0]
