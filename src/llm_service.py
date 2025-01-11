@@ -5,7 +5,6 @@ import chainlit as cl
 import httpx
 import litellm
 
-import ollama
 
 logger = logging.getLogger(__name__)
 SERVICE_MODELS = [
@@ -20,9 +19,9 @@ CHAT_SESSION_HEADERS = 'session_http_headers'
 
 def list_models() -> List[dict]:
 
-    # List available Ollama models
+    # List available Ollama models (https://github.com/ollama/ollama/blob/main/docs/api.md) and Cloud Service models.
     try:
-        response = ollama.list()
+        response = httpx.get(url='http://localhost:11434/api/tags').json()
         return response['models'] + SERVICE_MODELS
 
     except httpx.ConnectError as error:
