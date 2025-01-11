@@ -5,7 +5,6 @@ requires-python = ">=3.12"
 dependencies = [
     "chainlit", 
     "litellm", "async_generator", 
-    "ollama", 
     "tiktoken", 
     "toml", 
     "Jinja2"
