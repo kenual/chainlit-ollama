@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import Dict, List
+from typing import Dict, List, Optional
 import chainlit as cl
 import httpx
 import litellm
@@ -32,6 +32,18 @@ def list_models() -> List[dict]:
         return SERVICE_MODELS
 
 
+async def llm_completion(model: str, messages: List[Dict[str, str]],
+                         api_base: Optional[str] = OLLAMA_API_BASE,
+                         stream: Optional[bool] = True) -> str:
+    response = await litellm.acompletion(
+        model=model,
+        messages=messages,
+        api_base=api_base,
+        stream=stream
+    )
+    return response
+
+
 async def chat_messages_send_response(model: str, messages: List[Dict[str, str]]) -> None:
     if 'Cloud Service: ' in model:
         await service_chat_messages_send_response(model=model, messages=messages)
@@ -41,13 +53,14 @@ async def chat_messages_send_response(model: str, messages: List[Dict[str, str]]
     translation_table = str.maketrans({'.': '_', ':': '#'})
     assistant_response = cl.Message(
         content='', author=model.translate(translation_table))
-    
-    async for part in await litellm.acompletion(
+
+    response = await llm_completion(
         model=f"ollama_chat/{model}", 
-        messages=messages, 
-        api_base=OLLAMA_API_BASE, 
+        messages=messages,
+        api_base=OLLAMA_API_BASE,
         stream=True
-    ):
+    )
+    async for part in response:
         choice = part['choices'][0]
         if choice['finish_reason'] == 'stop':
             await assistant_response.send()
