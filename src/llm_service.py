@@ -2,15 +2,16 @@ import json
 import logging
 from typing import Dict, List, Optional
 import chainlit as cl
+from dotenv import load_dotenv
 import httpx
 import litellm
-
 
 logger = logging.getLogger(__name__)
 
 OLLAMA_API_BASE = "http://localhost:11434"
 
 SERVICE_MODELS = [
+    {'name': "cohere", 'model': "Cloud Service: command-r-plus-08-2024"},
     {'name': "claude-3-haiku", 'model': "Cloud Service: claude-3-haiku-20240307"},
     {'name': "gpt-4o-mini", 'model': "Cloud Service: gpt-4o-mini"},
     {'name': "llama-3.1-70b",
@@ -46,18 +47,29 @@ async def llm_completion(model: str, messages: List[Dict[str, str]],
 
 async def chat_messages_send_response(model: str, messages: List[Dict[str, str]]) -> None:
     if 'Cloud Service: ' in model:
-        await service_chat_messages_send_response(model=model, messages=messages)
-        return
+        if 'command-r-plus' in model:
+            litellm_model = model.split("Cloud Service: ")[1]
+        else:
+            await service_chat_messages_send_response(model=model, messages=messages)
+            return
     
     # Send chat messages to Ollama and stream the response back to the client.
     translation_table = str.maketrans({'.': '_', ':': '#'})
     assistant_response = cl.Message(
         content='', author=model.translate(translation_table))
 
+    if not litellm_model:
+        # Ollama settings
+        litellm_model = f"ollama_chat/{model}"
+        litellm_api_base = OLLAMA_API_BASE
+    else:
+        # Cloud Service settings
+        litellm_api_base = None
+
     response = await llm_completion(
-        model=f"ollama_chat/{model}", 
+        model=litellm_model,
         messages=messages,
-        api_base=OLLAMA_API_BASE,
+        api_base=litellm_api_base,
         stream=True
     )
     async for part in response:
