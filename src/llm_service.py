@@ -50,6 +50,7 @@ async def llm_completion(model: str, messages: List[Dict[str, str]],
 
 
 async def chat_messages_send_response(model: str, messages: List[Dict[str, str]]) -> None:
+    litellm_model = None
     if 'Cloud Service: ' in model:
         if 'command-r-plus' in model:
             litellm_model = model.split("Cloud Service: ")[1]
