@@ -77,12 +77,26 @@ async def chat_messages_send_response(model: str, messages: List[Dict[str, str]]
         api_base=litellm_api_base,
         stream=True
     )
+
+    inside_think_block = False
     async for part in response:
         choice = part['choices'][0]
         if choice['finish_reason'] == 'stop':
             await assistant_response.send()
         else:
-            await assistant_response.stream_token(part['choices'][0]['delta']['content'])
+            token = part['choices'][0]['delta']['content']
+            match token:
+                case '<think>':
+                    inside_think_block = True
+                    token = '>'
+                case '</think>':
+                    inside_think_block = False
+                    token = ''
+                case _:
+                    if inside_think_block:
+                        token = token.replace('\n', '\n>')
+
+            await assistant_response.stream_token(token)
 
 
 def get_continuation_headers(response: httpx.Response) -> dict:
