@@ -14,8 +14,9 @@ OLLAMA_API_BASE = "http://localhost:11434"
 SERVICE_MODELS = [
     {'name': "claude-3-haiku", 'model': "Cloud Service: claude-3-haiku-20240307"},
     {'name': "gpt-4o-mini", 'model': "Cloud Service: gpt-4o-mini"},
-    {'name': "llama-3.1-70b",
-        'model': "Cloud Service: meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo"},
+    {'name': "o3-mini", 'model': "Cloud Service: o3-mini"},
+    {'name': "llama-3.3-70b",
+        'model': "Cloud Service: meta-llama/Llama-3.3-70B-Instruct-Turbo"},
     {'name': "mixtral-8x7b", 'model': "Cloud Service: mistralai/Mixtral-8x7B-Instruct-v0.1"}
 ]
 if os.getenv('COHERE_API_KEY'):
