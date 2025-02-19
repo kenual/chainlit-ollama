@@ -83,7 +83,7 @@ async def prompt_to_fill_template(command: str) -> str:
 
     template_params = {}
     for param, value in params.items():
-        user_response = await cl.AskUserMessage(content=value).send()
+        user_response = await cl.AskUserMessage(content=value, timeout=900).send()
         if user_response:
             template_params[param] = user_response['output']
 
