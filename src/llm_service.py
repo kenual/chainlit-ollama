@@ -89,7 +89,7 @@ async def chat_messages_send_response(model: str, messages: List[Dict[str, str]]
             match token:
                 case '<think>':
                     inside_think_block = True
-                    token = '>'
+                    token = '🧠'
                 case '</think>':
                     inside_think_block = False
                     token = ''
