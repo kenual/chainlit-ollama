@@ -23,8 +23,10 @@ if os.getenv('COHERE_API_KEY'):
     SERVICE_MODELS.insert(
         0, {'name': "cohere", 'model': "Cloud Service: command-r-plus-08-2024"})
 if os.getenv('TOGETHERAI_API_KEY'):
-    SERVICE_MODELS.insert(
-        0, {'name': "DeepSeek-R1-Distill-lama-70B-free", 'model': "Cloud Service: together_ai/deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free"})
+    SERVICE_MODELS[:0]=[
+        {'name': "DeepSeek-R1-Distill-lama-70B-free", 'model': "Cloud Service: together_ai/deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free"},
+        {'name': "Llama-Vision-Free", 'model': "Cloud Service: together_ai/meta-llama/Llama-Vision-Free"}
+    ]
 
 SERVICE_CHAT_CONTINUATION_HEADER_KEY = 'x-vqd-4'
 CHAT_SESSION_HEADERS = 'session_http_headers'
@@ -93,10 +95,10 @@ async def chat_messages_send_response(model: str, messages: List[Dict[str, str]]
             match token:
                 case '<think>':
                     inside_think_block = True
-                    token = '🧠'
+                    token = '⚛️'
                 case '</think>':
                     inside_think_block = False
-                    token = ''
+                    token = '\n🏁'
                 case _:
                     if inside_think_block:
                         token = token.replace('\n', '\n>')
