@@ -22,6 +22,9 @@ SERVICE_MODELS = [
 if os.getenv('COHERE_API_KEY'):
     SERVICE_MODELS.insert(
         0, {'name': "cohere", 'model': "Cloud Service: command-r-plus-08-2024"})
+if os.getenv('TOGETHERAI_API_KEY'):
+    SERVICE_MODELS.insert(
+        0, {'name': "DeepSeek-R1-Distill-lama-70B-free", 'model': "Cloud Service: together_ai/deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free"})
 
 SERVICE_CHAT_CONTINUATION_HEADER_KEY = 'x-vqd-4'
 CHAT_SESSION_HEADERS = 'session_http_headers'
@@ -53,7 +56,7 @@ async def llm_completion(model: str, messages: List[Dict[str, str]],
 async def chat_messages_send_response(model: str, messages: List[Dict[str, str]]) -> None:
     litellm_model = None
     if 'Cloud Service: ' in model:
-        if 'command-r-plus' in model:
+        if 'command-r-plus' in model or "together_ai" in model:
             litellm_model = model.split("Cloud Service: ")[1]
         else:
             await service_chat_messages_send_response(model=model, messages=messages)
@@ -82,10 +85,11 @@ async def chat_messages_send_response(model: str, messages: List[Dict[str, str]]
     inside_think_block = False
     async for part in response:
         choice = part['choices'][0]
-        if choice['finish_reason'] == 'stop':
+        token = choice['delta']['content']
+
+        if choice['finish_reason'] == 'stop' or not token:
             await assistant_response.send()
         else:
-            token = part['choices'][0]['delta']['content']
             match token:
                 case '<think>':
                     inside_think_block = True
