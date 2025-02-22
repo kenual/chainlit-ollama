@@ -83,6 +83,7 @@ async def chat_messages_send_response(model: str, messages: List[Dict[str, str]]
         stream=True
     )
 
+    think_step = None
     assistant_response = cl.Message(content='', author=model.translate(translation_table))
     async for part in response:
         choice = part['choices'][0]
