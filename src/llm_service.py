@@ -66,8 +66,6 @@ async def chat_messages_send_response(model: str, messages: List[Dict[str, str]]
     
     # Send chat messages to Ollama and stream the response back to the client.
     translation_table = str.maketrans({'.': '_', ':': '#'})
-    assistant_response = cl.Message(
-        content='', author=model.translate(translation_table))
 
     if not litellm_model:
         # Ollama settings
@@ -84,7 +82,7 @@ async def chat_messages_send_response(model: str, messages: List[Dict[str, str]]
         stream=True
     )
 
-    inside_think_block = False
+    assistant_response = cl.Message(content='', author=model.translate(translation_table))
     async for part in response:
         choice = part['choices'][0]
         token = choice['delta']['content']
@@ -94,16 +92,17 @@ async def chat_messages_send_response(model: str, messages: List[Dict[str, str]]
         else:
             match token:
                 case '<think>':
-                    inside_think_block = True
-                    token = '⚛️'
+                    think_step = cl.Step(name="Thinking ⚛️")
+                    continue
                 case '</think>':
-                    inside_think_block = False
-                    token = '\n🏁'
-                case _:
-                    if inside_think_block:
-                        token = token.replace('\n', '\n>')
+                    await think_step.send()
+                    think_step = None
+                    continue
 
-            await assistant_response.stream_token(token)
+            if think_step:
+                await think_step.stream_token(token)
+            else:
+                await assistant_response.stream_token(token)
 
 
 def get_continuation_headers(response: httpx.Response) -> dict:
