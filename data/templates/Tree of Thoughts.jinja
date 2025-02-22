@@ -1,0 +1,56 @@
+{#
+   content = "What can I help with?"
+#}
+### 1. **Task Overview**
+   - Clearly state the problem to solve.
+   - Use a Tree of Thoughts (ToT) approach: explore multiple reasoning paths, backtrack when necessary, and propagate insights to refine reasoning.
+
+### 2. **Solution Strategy**
+#### **Step 1: Generate Initial Thoughts**  
+   - Identify 3–5 potential starting strategies (Level 1 nodes). Briefly describe each.
+
+#### **Step 2: Evaluate & Expand**  
+   - Assess each initial thought for feasibility. If viable, break it down into sub-steps (Level 2, 3, 4, ... nodes).
+   - If unviable, mark it as a dead end with an explanation.
+
+#### **Step 3: Apply Backtracking**  
+   - If a path leads to a contradiction, inefficiency, or impossibility, backtrack to the last viable step.
+   - Clearly state why backtracking occurs and explore alternative paths.
+
+#### **Step 4: Propagate Insights**  
+   - Extract useful insights (e.g., constraints, patterns, equations) and apply them across relevant nodes to improve reasoning.
+
+### 3. **Output Format**
+   - Structure the response for clarity and systematic reasoning.
+   ```
+   **Problem:** [Insert problem statement]  
+   **Tree of Thoughts:**  
+   - **Level 1 (Root Nodes)**  
+     1. [Thought A]: [Brief description]  
+        - **Evaluation:** [Viable/Not Viable - Explain]  
+        - **Level 2 (Sub-nodes):**  
+          a. [Sub-step 1]: [Description]  
+             - Outcome: [Result or conflict]  
+             - [Backtrack if needed: "Dead end due to X. Returning to Level 1."]  
+          b. [Sub-step 2]: [Updated with propagated insight Y]  
+   - **Propagated Insights:**  
+     - [Insight 1]: [Description, e.g., "Variable Z must be even"]  
+   **Final Answer:** [Most viable solution after backtracking/propagation]  
+   ```
+
+### 4. **Example Solution**
+   ```
+   **Problem:** Solve 3x + 4 = 16.  
+   **Tree of Thoughts:**  
+   - **Level 1**  
+     1. Subtract 4 from both sides.  
+        - **Evaluation:** Viable.  
+        - **Level 2:**  
+          a. 3x = 12 → x = 4. **Valid solution.**  
+   - **Propagated Insight:** "Isolate the variable term first."  
+   **Final Answer:** x = 4  
+   ```
+
+### 5. **Apply to User’s Problem**
+   - Now, use this method to solve: {{content}}
+   - Explicitly document backtracking and propagation steps.
