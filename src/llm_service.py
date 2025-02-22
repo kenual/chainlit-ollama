@@ -122,6 +122,7 @@ def get_continuation_headers(response: httpx.Response) -> dict:
 
 
 async def service_chat_messages_send_response(model: str, messages: List[Dict[str, str]]) -> None:
+    http_timeout = 15
     model = model.rsplit(sep=' ', maxsplit=1)[1] # remove cloud service prefix
 
     translation_table = str.maketrans({'.': '_', ':': '#'})
@@ -132,7 +133,8 @@ async def service_chat_messages_send_response(model: str, messages: List[Dict[st
     logging.info(f"Use continuation headers: {headers}")
     if headers is None:
         response = httpx.get(url='https://duckduckgo.com/duckchat/v1/status',
-                             headers={'x-vqd-accept': '1'}
+                             headers={'x-vqd-accept': '1'},
+                             timeout=http_timeout
                              )
         headers = get_continuation_headers(response)
 
@@ -144,9 +146,11 @@ async def service_chat_messages_send_response(model: str, messages: List[Dict[st
     async with client.stream(method='POST',
                              url='https://duckduckgo.com/duckchat/v1/chat',
                              headers=headers,
-                             json=part) as response:
+                             json=part,
+                             timeout=http_timeout
+                             ) as response:
         async for line in response.aiter_lines():
-            if line.startswith("data:"):
+            if line.startswith("data: "):
                 data = line[5:].strip()
                 if not '[DONE]' in data:
                     part = json.loads(data)
