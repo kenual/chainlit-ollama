@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import time
 from typing import Dict, List, Optional
 import chainlit as cl
 from dotenv import load_dotenv
@@ -92,9 +93,18 @@ async def chat_messages_send_response(model: str, messages: List[Dict[str, str]]
         else:
             match token:
                 case '<think>':
-                    think_step = cl.Step(name="Thinking ⚛️")
+                    start_time = time.time()
+                    think_step = cl.Step(name="⚛️ Thinking", type="llm")
                     continue
                 case '</think>':
+                    elapsed_time = time.time() - start_time
+                    minutes, seconds = map(round, divmod(elapsed_time, 60))
+
+                    duration = f'{seconds} second{"s" if seconds > 0 else ""}'
+                    if minutes > 0:
+                        duration = f'{minutes} minute{"s" if minutes > 1 else ""} {duration}'
+
+                    think_step.name = f'⚛️ Thought for {duration}'
                     await think_step.send()
                     think_step = None
                     continue
