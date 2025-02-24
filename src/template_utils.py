@@ -63,6 +63,6 @@ def render_template_with_vars(name: str, context: Dict[str, str]) -> str:
     # Render the template with the context variables
     env = Environment(loader=FileSystemLoader(searchpath=TEMPLATES_DIR))
     template = env.get_template(get_template_file_name(name=name, path=None))
-    context['now'] = datetime.now().strftime("%A, %B %d, %Y %I:%M%p")
+    context['now'] = datetime.now().strftime("%A, %B %d, %Y")
     output = template.render(context)
     return output.strip()
