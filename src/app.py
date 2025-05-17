@@ -3,12 +3,26 @@ from typing import Any
 
 import chainlit as cl
 from chainlit.cli import run_chainlit
+from mcp import ClientSession
 
 from app_helper import MODEL_ID, append_message_to_session_history, initialize_session_chat_settings, prompt_to_fill_template, update_session_chat_settings
 from llm_service import chat_messages_send_response
 from template_utils import list_templates
 
 logger = logging.getLogger(__name__)
+
+
+@cl.on_mcp_connect
+async def on_mcp_connect(connection: Any, session: ClientSession):
+    # Called when an MCP connection is established
+    result = await session.list_tools()
+    logger.info(f"Connected to MCP: {connection} tools: {result}")
+
+
+@cl.on_mcp_disconnect
+async def on_mcp_disconnect(name: str, session: ClientSession):
+    # Called when an MCP connection is terminated
+    logger.info(f"Disconnected from MCP: {name}")
 
 
 @cl.on_chat_start
