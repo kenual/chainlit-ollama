@@ -158,7 +158,7 @@ cython_debug/
 uv.lock
 
 # Chainlit files
-.chainlit/
+.chainlit/translations
 chainlit.md
 .files/
 
