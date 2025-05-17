@@ -1,3 +1,4 @@
+import json
 import logging
 from typing import Any
 
@@ -15,13 +16,36 @@ logger = logging.getLogger(__name__)
 @cl.on_mcp_connect
 async def on_mcp_connect(connection: Any, session: ClientSession):
     # Called when an MCP connection is established
+    # npx @playwright/mcp@latest
+
+    name = connection.name
     result = await session.list_tools()
-    logger.info(f"Connected to MCP: {connection} tools: {result}")
+
+    attributes = vars(connection)
+    connection_dict = {k: v for k, v in attributes.items() if not k.startswith(
+        '__') and not callable(v) and k != 'name'}
+    logger.info(f"Connected to {name}: {connection_dict}")
+
+    tools = [{
+        "name": t.name,
+        "description": t.description,
+        "input_schema": t.inputSchema,
+    } for t in result.tools]
+
+    mcp_tools = cl.user_session.get("mcp_tools", {})
+    mcp_tools[connection.name] = tools
+    cl.user_session.set("mcp_tools", mcp_tools)
+    logger.info(f"{json.dumps(tools, indent=2)}")
 
 
 @cl.on_mcp_disconnect
 async def on_mcp_disconnect(name: str, session: ClientSession):
     # Called when an MCP connection is terminated
+    mcp_tools = cl.user_session.get("mcp_tools", {})
+    if name in mcp_tools:
+        del mcp_tools[name]
+        cl.user_session.set("mcp_tools", mcp_tools)
+
     logger.info(f"Disconnected from MCP: {name}")
 
 
