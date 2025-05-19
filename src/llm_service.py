@@ -4,7 +4,6 @@ import os
 import time
 from typing import Dict, List, Optional
 import chainlit as cl
-from dotenv import load_dotenv
 import httpx
 import litellm
 
@@ -45,11 +44,14 @@ def list_models() -> List[dict]:
 
 
 async def llm_completion(model: str, messages: List[Dict[str, str]],
+                         tools: Optional[List[Dict[str, str]]] = None,
                          api_base: Optional[str] = OLLAMA_API_BASE,
                          stream: Optional[bool] = True) -> str:
     response = await litellm.acompletion(
         model=model,
         messages=messages,
+        tools=tools,
+        tool_choice="auto",
         api_base=api_base,
         stream=stream
     )
@@ -76,9 +78,14 @@ async def chat_messages_send_response(model: str, messages: List[Dict[str, str]]
         # Cloud Service settings
         litellm_api_base = None
 
+    # Get tools from all MCP connections
+    mcp_tools = cl.user_session.get("mcp_tools", {})
+    all_tools = [tool for connection_tools in mcp_tools.values() for tool in connection_tools]
+
     response = await llm_completion(
         model=litellm_model,
         messages=messages,
+        tools=all_tools,
         api_base=litellm_api_base,
         stream=True
     )
