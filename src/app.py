@@ -35,7 +35,7 @@ async def on_mcp_connect(connection: Any, session: ClientSession):
     mcp_tools = cl.user_session.get("mcp_tools", {})
     mcp_tools[connection.name] = tools
     cl.user_session.set("mcp_tools", mcp_tools)
-    logger.info(f"{json.dumps(tools, indent=2)}")
+    logger.debug(f"{json.dumps(tools, indent=2)}")
 
 
 @cl.on_mcp_disconnect
