@@ -141,22 +141,35 @@ async def chat_messages_send_response(model: str, messages: List[Dict[str, str]]
 
     if isinstance(response, litellm.ModelResponse):
         message = response.choices[0].message
-        assistant_response = cl.Message(content='', author=model.translate(translation_table))
 
         use_tools = message.get('tool_calls', [])
         if use_tools:
             # Call the tools
             for tool in use_tools:
+                tool_id = tool.get('id', '')
                 tool_function = tool.get('function', {})
+                tool_name = tool_function.get('name', '')
+                tool_arguments = tool_function.get('arguments', {})
                 result = await call_tool(
-                    name=tool_function.get('name', ''),
-                    input=tool_function.get('arguments', {})
+                    name=tool_name,
+                    input=tool_arguments
                 )
-                await assistant_response.stream_token(result)
 
-        await assistant_response.send()
-        return
-    
+                logger.info(f"{tool_name} {tool_arguments} result: {result}")
+                # Append the tool result to the messages
+                messages.append({
+                    "role": "tool",
+                    "content": result,
+                    "tool_id": tool_id
+                })
+
+                response = await llm_completion(
+                    model=litellm_model,
+                    messages=messages,
+                    tools=all_tools,
+                    api_base=litellm_api_base,
+                    stream=all_tools is None
+                )
 
     think_step = None
     assistant_response = cl.Message(content='', author=model.translate(translation_table))
