@@ -2,14 +2,13 @@ import json
 import logging
 import os
 import time
-from typing import Any, Dict, List, Optional
+from typing import Dict, List
 import chainlit as cl
 import httpx
-import litellm
+
+from agent_helper import OLLAMA_API_BASE, agent_runner
 
 logger = logging.getLogger(__name__)
-
-OLLAMA_API_BASE = "http://localhost:11434"
 
 SERVICE_MODELS = [
     {'name': "claude-3-haiku", 'model': "Cloud Service: claude-3-haiku-20240307"},
@@ -41,60 +40,6 @@ def list_models() -> List[dict]:
     except httpx.ConnectError as error:
         logger.error(f"Ollama server connect error: {error}")
         return SERVICE_MODELS
-
-
-async def llm_completion(model: str, messages: List[Dict[str, str]],
-                         tools: Optional[List[Dict[str, str]]] = None,
-                         api_base: Optional[str] = OLLAMA_API_BASE,
-                         stream: Optional[bool] = True) -> str:
-    response = await litellm.acompletion(
-        model=model,
-        messages=messages,
-        tools=tools,
-        tool_choice="auto",
-        api_base=api_base,
-        stream=stream
-    )
-    return response
-
-
-@cl.step(type="tool")
-async def call_tool(name: str, input: str) -> str:
-    current_step = cl.context.current_step
-    current_step.name = name
-    tool_input = json.loads(input)
-
-
-    # Find appropriate MCP connection for this tool
-    mcp_tools = cl.user_session.get("mcp_tools", {})
-    mcp_name = None
-
-    for connection_name, tools in mcp_tools.items():
-        if any(tool.get("name") == name for tool in tools):
-            mcp_name = connection_name
-            break
-
-    if not mcp_name:
-        current_step.output = json.dumps(
-            {"error": f"Tool {name} not found in any MCP connection"})
-        return current_step.output
-
-    # Get the MCP session
-    mcp_session, _ = cl.context.session.mcp_sessions.get(mcp_name)
-    if not mcp_session:
-        current_step.output = json.dumps(
-            {"error": f"MCP {mcp_name} not found in any MCP connection"})
-        return current_step.output
-
-    # Call the tool
-    try:
-        current_step.output = await mcp_session.call_tool(name, tool_input)
-    except Exception as e:
-        current_step.output = json.dumps({"error": str(e)})
-    finally:
-        await current_step.send()
-
-    return current_step.output
 
 
 async def chat_messages_send_response(model: str, messages: List[Dict[str, str]]) -> None:
@@ -131,45 +76,13 @@ async def chat_messages_send_response(model: str, messages: List[Dict[str, str]]
         for connection_tools in mcp_tools.values() for tool in connection_tools
     ]
 
-    response = await llm_completion(
+    response = await agent_runner(
         model=litellm_model,
         messages=messages,
         tools=all_tools,
         api_base=litellm_api_base,
         stream=all_tools is None
     )
-
-    if isinstance(response, litellm.ModelResponse):
-        message = response.choices[0].message
-
-        use_tools = message.get('tool_calls', [])
-        if use_tools:
-            # Call the tools
-            for tool in use_tools:
-                tool_id = tool.get('id', '')
-                tool_function = tool.get('function', {})
-                tool_name = tool_function.get('name', '')
-                tool_arguments = tool_function.get('arguments', {})
-                result = await call_tool(
-                    name=tool_name,
-                    input=tool_arguments
-                )
-
-                logger.info(f"{tool_name} {tool_arguments} result: {result}")
-                # Append the tool result to the messages
-                messages.append({
-                    "role": "tool",
-                    "content": result,
-                    "tool_id": tool_id
-                })
-
-                response = await llm_completion(
-                    model=litellm_model,
-                    messages=messages,
-                    tools=all_tools,
-                    api_base=litellm_api_base,
-                    stream=all_tools is None
-                )
 
     think_step = None
     assistant_response = cl.Message(content='', author=model.translate(translation_table))
