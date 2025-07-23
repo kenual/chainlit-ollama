@@ -14,6 +14,12 @@ dependencies = [
 homepage = "https://github.com/kenual/chainlit-ollama"
 repository = "https://github.com/kenual/chainlit-ollama"
 
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "pytest-asyncio"
+]
+
 [build-system]
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
