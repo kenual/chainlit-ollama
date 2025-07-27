@@ -21,7 +21,6 @@ if os.getenv('TOGETHERAI_API_KEY'):
         {'name': "Llama-Vision-Free", 'model': "Cloud Service: together_ai/meta-llama/Llama-Vision-Free"}
     ]
 
-SERVICE_CHAT_CONTINUATION_HEADER_KEY = 'x-vqd-4'
 CHAT_SESSION_HEADERS = 'session_http_headers'
 
 def list_models() -> List[dict]:
