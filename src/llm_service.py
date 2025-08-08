@@ -16,12 +16,13 @@ if os.getenv('COHERE_API_KEY'):
     SERVICE_MODELS.insert(
         0, {'name': "cohere", 'model': "Cloud Service: command-r-plus-08-2024"})
 if os.getenv('TOGETHERAI_API_KEY'):
-    SERVICE_MODELS[:0]=[
-        {'name': "DeepSeek-R1-Distill-lama-70B-free", 'model': "Cloud Service: together_ai/deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free"},
-        {'name': "Llama-Vision-Free", 'model': "Cloud Service: together_ai/meta-llama/Llama-Vision-Free"}
+    SERVICE_MODELS[:0] = [
+        {'name': "DeepSeek-R1-Distill-lama-70B-free",
+            'model': "Cloud Service: together_ai/deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free"},
+        {'name': "Llama-Vision-Free",
+            'model': "Cloud Service: together_ai/meta-llama/Llama-Vision-Free"}
     ]
 
-CHAT_SESSION_HEADERS = 'session_http_headers'
 
 def list_models() -> List[dict]:
 
@@ -40,7 +41,7 @@ async def chat_messages_send_response(model: str, messages: List[Dict[str, str]]
     if 'Cloud Service: ' in model:
         if 'command-r-plus' in model or "together_ai" in model:
             litellm_model = model.split("Cloud Service: ")[1]
-    
+
     # Send chat messages to Ollama and stream the response back to the client.
     translation_table = str.maketrans({'.': '_', ':': '#'})
 
@@ -75,7 +76,8 @@ async def chat_messages_send_response(model: str, messages: List[Dict[str, str]]
     )
 
     think_step = None
-    assistant_response = cl.Message(content='', author=model.translate(translation_table))
+    assistant_response = cl.Message(
+        content='', author=model.translate(translation_table))
     async for part in response:
         choice = part['choices'][0]
         token = choice['delta']['content']
