@@ -24,7 +24,7 @@ if os.getenv('TOGETHERAI_API_KEY'):
     ]
 
 
-def list_models() -> List[dict]:
+def get_available_models() -> List[dict]:
 
     # List available Ollama models (https://github.com/ollama/ollama/blob/main/docs/api.md) and Cloud Service models.
     try:
