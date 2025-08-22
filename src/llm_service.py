@@ -37,21 +37,21 @@ def list_models() -> List[dict]:
 
 
 async def chat_messages_send_response(model: str, messages: List[Dict[str, str]]) -> None:
-    litellm_model = None
+    any_llm_model = None
     if 'Cloud Service: ' in model:
         if 'command-r-plus' in model or "together_ai" in model:
-            litellm_model = model.split("Cloud Service: ")[1]
+            any_llm_model = model.split("Cloud Service: ")[1]
 
     # Send chat messages to Ollama and stream the response back to the client.
     translation_table = str.maketrans({'.': '_', ':': '#'})
 
-    if not litellm_model:
+    if not any_llm_model:
         # Ollama settings
-        litellm_model = f"ollama_chat/{model}"
-        litellm_api_base = OLLAMA_API_BASE
+        any_llm_model = f"ollama_chat/{model}"
+        any_llm_api_base = OLLAMA_API_BASE
     else:
         # Cloud Service settings
-        litellm_api_base = None
+        any_llm_api_base = None
 
     # Get tools from all MCP connections
     mcp_tools = cl.user_session.get("mcp_tools", {})
@@ -68,10 +68,10 @@ async def chat_messages_send_response(model: str, messages: List[Dict[str, str]]
     ]
 
     response = await agent_runner(
-        model=litellm_model,
+        model=any_llm_model,
         messages=messages,
         tools=all_tools,
-        api_base=litellm_api_base,
+        api_base=any_llm_api_base,
         stream=all_tools is None
     )
 

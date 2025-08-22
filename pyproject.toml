@@ -3,8 +3,8 @@ name = "chainlit-ollama"
 version = "0.0.0"
 requires-python = ">=3.12"
 dependencies = [
-    "chainlit", 
-    "litellm", "async_generator", 
+    "chainlit",
+    "any-llm-sdk[ollama]",
     "tiktoken", 
     "toml", 
     "Jinja2"
