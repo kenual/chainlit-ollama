@@ -11,4 +11,4 @@ def test_get_available_models_live_no_mock():
         assert isinstance(model, Model), f"Each model must be of type Model, got {type(model)}"
         assert hasattr(model, "name")
         assert hasattr(model, "provider")
-        assert hasattr(model, "model")
+        assert hasattr(model, "display")

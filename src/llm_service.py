@@ -18,12 +18,47 @@ class Model(BaseModel):
     display: str
 
 
+def list_provider_models(
+    provider: ProviderName, api_key: str = None
+) -> List[Model]:
+    """
+    List models for the specified provider.
+
+    Args:
+        provider: ProviderName to query (can be local or remote).
+        api_key: API key for the provider (may be unused depending on provider).
+
+    Returns:
+        List[Model]: List of models provided by the specified provider, or an empty list if there is a connection error.
+    """
+    if provider == ProviderName.OLLAMA:
+        prefix = ""
+    else:
+        prefix = f"Cloud Service: {provider.value}."
+
+    try:
+        list_models_response = list_models(provider=provider, api_key=api_key)
+        provider_models = [
+            Model(
+                name=model.id,
+                provider=provider,
+                display=prefix + model.id,
+            )
+            for model in list_models_response
+        ]
+        return provider_models
+    except Exception as error:
+        logger.error(f"{provider} list_models() error: {error}")
+        return []
+
+
 def get_available_models() -> List[Model]:
     load_dotenv()
     cloud_service_models: List[Model] = []
     if os.getenv('COHERE_API_KEY'):
-        cloud_service_models.append(Model(name="cohere", provider=ProviderName.COHERE,
-                                          display="Cloud Service: command-r-plus-08-2024"))
+        cloud_service_models += list_provider_models(
+            provider=ProviderName.COHERE,
+            api_key=os.getenv('COHERE_API_KEY'))
     if os.getenv('TOGETHERAI_API_KEY'):
         cloud_service_models[:0] = [
             Model(name="DeepSeek-R1-Distill-lama-70B-free", provider=ProviderName.TOGETHER,
@@ -33,20 +68,7 @@ def get_available_models() -> List[Model]:
         ]
 
     # Local Ollama models
-    try:
-        list_models_response = list_models(provider=ProviderName.OLLAMA)
-        ollama_models = [
-            Model(
-                name=model.id,
-                provider=ProviderName.OLLAMA,
-                display=model.id,
-            )
-            for model in list_models_response
-        ]
-        return ollama_models + cloud_service_models
-    except ConnectionError as error:
-        logger.error(f"Ollama server connect error: {error}")
-        return cloud_service_models
+    return list_provider_models(provider=ProviderName.OLLAMA) + cloud_service_models
 
 
 async def chat_messages_send_response(model: str, messages: List[Dict[str, str]]) -> None:
