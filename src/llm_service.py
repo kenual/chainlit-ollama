@@ -5,6 +5,7 @@ import time
 from typing import Dict, List
 import chainlit as cl
 import httpx
+from any_llm import ProviderName, list_models
 
 from agent_helper import OLLAMA_API_BASE, agent_runner
 
@@ -28,8 +29,8 @@ def get_available_models() -> List[dict]:
 
     # List available Ollama models (https://github.com/ollama/ollama/blob/main/docs/api.md) and Cloud Service models.
     try:
-        response = httpx.get(url=f'{OLLAMA_API_BASE}/api/tags').json()
-        return response['models'] + SERVICE_MODELS
+        list_models_response = list_models(provider=ProviderName.OLLAMA)
+        return list_models_response['models'] + SERVICE_MODELS
 
     except httpx.ConnectError as error:
         logger.error(f"Ollama server connect error: {error}")
