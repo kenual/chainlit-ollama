@@ -100,19 +100,20 @@ async def chat_messages_send_response(model: str, messages: List[Dict[str, str]]
         model=any_llm_model,
         messages=messages,
         tools=all_tools,
-        stream=all_tools is None
+        stream=all_tools is not None
     )
 
     think_step = None
     assistant_response = cl.Message(
         content='', author=model.translate(translation_table))
     async for part in response:
-        choice = part['choices'][0]
-        token = choice['delta']['content']
+        choice = part.choices[0]
 
-        if choice['finish_reason'] == 'stop' or not token:
+        if choice.finish_reason == 'stop':
             await assistant_response.send()
         else:
+            token = choice.delta.content
+
             match token:
                 case '<think>':
                     start_time = time.time()

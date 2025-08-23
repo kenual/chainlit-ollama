@@ -89,7 +89,7 @@ async def call_tool(name: str, input: str) -> str:
 async def agent_runner(model: str, messages: List[Dict[str, str]],
                        tools: Optional[List[Dict[str, str]]] = None,
                        api_base: Optional[str] = OLLAMA_API_BASE,
-                       stream: Optional[bool] = True):
+                       stream: Optional[bool] = True) -> AsyncIterator[ChatCompletionChunk]:
     while True:
         response = await llm_completion(
             model=model,
@@ -99,10 +99,14 @@ async def agent_runner(model: str, messages: List[Dict[str, str]],
             stream=stream
         )
 
+        # Return streaming response directly
+        if response is not ChatCompletion:
+            return response
+
         if hasattr(response, 'choices') and response.choices:
             message = response.choices[0].message
 
-            use_tools = message.get('tool_calls', [])
+            use_tools = message.tool_calls
             if use_tools:
                 # Call the tools
                 for tool in use_tools:
@@ -132,6 +136,3 @@ async def agent_runner(model: str, messages: List[Dict[str, str]],
                     api_base=api_base,
                     stream=True
                 )
-
-        else:
-            return response
