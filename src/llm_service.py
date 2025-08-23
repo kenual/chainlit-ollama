@@ -1,40 +1,52 @@
-import json
 import logging
 import os
 import time
 from typing import Dict, List
 import chainlit as cl
-import httpx
+from dotenv import load_dotenv
 from any_llm import ProviderName, list_models
+from pydantic import BaseModel
 
 from agent_helper import OLLAMA_API_BASE, agent_runner
 
 logger = logging.getLogger(__name__)
 
-SERVICE_MODELS = [
-]
-if os.getenv('COHERE_API_KEY'):
-    SERVICE_MODELS.insert(
-        0, {'name': "cohere", 'model': "Cloud Service: command-r-plus-08-2024"})
-if os.getenv('TOGETHERAI_API_KEY'):
-    SERVICE_MODELS[:0] = [
-        {'name': "DeepSeek-R1-Distill-lama-70B-free",
-            'model': "Cloud Service: together_ai/deepseek-ai/DeepSeek-R1-Distill-Llama-70B-free"},
-        {'name': "Llama-Vision-Free",
-            'model': "Cloud Service: together_ai/meta-llama/Llama-Vision-Free"}
-    ]
+
+class Model(BaseModel):
+    name: str
+    provider: ProviderName
+    display: str
 
 
-def get_available_models() -> List[dict]:
+def get_available_models() -> List[Model]:
+    load_dotenv()
+    cloud_service_models: List[Model] = []
+    if os.getenv('COHERE_API_KEY'):
+        cloud_service_models.append(Model(name="cohere", provider=ProviderName.COHERE,
+                                          display="Cloud Service: command-r-plus-08-2024"))
+    if os.getenv('TOGETHERAI_API_KEY'):
+        cloud_service_models[:0] = [
+            Model(name="DeepSeek-R1-Distill-lama-70B-free", provider=ProviderName.TOGETHER,
+                  display="Cloud Service: DeepSeek-R1-Distill-Llama-70B-free"),
+            Model(name="Llama-Vision-Free", provider=ProviderName.TOGETHER,
+                  display="Cloud Service: Llama-Vision-Free")
+        ]
 
-    # List available Ollama models (https://github.com/ollama/ollama/blob/main/docs/api.md) and Cloud Service models.
+    # Local Ollama models
     try:
         list_models_response = list_models(provider=ProviderName.OLLAMA)
-        return list_models_response['models'] + SERVICE_MODELS
-
-    except httpx.ConnectError as error:
+        ollama_models = [
+            Model(
+                name=model.id,
+                provider=ProviderName.OLLAMA,
+                display=model.id,
+            )
+            for model in list_models_response
+        ]
+        return ollama_models + cloud_service_models
+    except ConnectionError as error:
         logger.error(f"Ollama server connect error: {error}")
-        return SERVICE_MODELS
+        return cloud_service_models
 
 
 async def chat_messages_send_response(model: str, messages: List[Dict[str, str]]) -> None:
