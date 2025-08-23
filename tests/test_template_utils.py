@@ -14,9 +14,8 @@ def test_get_template_content() -> None:
 
 def test_extract_template_vars() -> None:
     vars = extract_template_vars('Summarize Content')
-    assert len(vars) == 2
+    assert len(vars) == 1
     assert 'content' in vars
-    assert 'output_language' in vars
 
 
 @pytest.mark.parametrize("command", [

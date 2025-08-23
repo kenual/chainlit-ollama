@@ -1,7 +1,9 @@
 import json
 import logging
-from typing import List, Dict, Optional
-import litellm
+from typing import AsyncIterator, List, Dict, Optional
+
+from any_llm import ProviderName, acompletion
+from any_llm.types.completion import ChatCompletion, ChatCompletionChunk
 import chainlit as cl
 
 logger = logging.getLogger(__name__)
@@ -9,19 +11,46 @@ logger = logging.getLogger(__name__)
 OLLAMA_API_BASE = "http://localhost:11434"
 
 
-async def llm_completion(model: str, messages: List[Dict[str, str]],
-                         tools: Optional[List[Dict[str, str]]] = None,
-                         api_base: Optional[str] = OLLAMA_API_BASE,
-                         stream: Optional[bool] = True) -> str:
-    response = await litellm.acompletion(
-        model=model,
-        messages=messages,
-        tools=tools,
-        tool_choice="auto",
-        api_base=api_base,
-        stream=stream
-    )
-    return response
+from typing import Union
+
+async def llm_completion(
+    model: str,
+    messages: List[Dict[str, str]],
+    provider: ProviderName,
+    tools: Optional[List[Dict[str, str]]] = None,
+    api_base: Optional[str] = OLLAMA_API_BASE,
+    stream: Optional[bool] = True
+) -> ChatCompletion | AsyncIterator[ChatCompletionChunk]:
+    """
+    Call the LLM completion endpoint.
+
+    Args:
+        model: Model name.
+        messages: List of message dicts.
+        provider: Provider name.
+        tools: Optional list of tool dicts.
+        api_base: API base URL.
+        stream: If True, returns an async iterator of ChatCompletionChunk; else returns ChatCompletion.
+
+    Returns:
+        ChatCompletion or AsyncIterator[ChatCompletionChunk]
+
+    Raises:
+        Exception: If the completion call fails.
+    """
+    try:
+        response = await acompletion(
+            model=model,
+            messages=messages,
+            provider=provider,
+            tools=tools,
+            api_base=api_base,
+            stream=stream
+        )
+        return response
+    except Exception as e:
+        logger.error(f"llm_completion error: {e}")
+        raise
 
 
 @cl.step(type="tool")
@@ -75,7 +104,7 @@ async def agent_runner(model: str, messages: List[Dict[str, str]],
             stream=stream
         )
 
-        if isinstance(response, litellm.ModelResponse):
+        if hasattr(response, 'choices') and response.choices:
             message = response.choices[0].message
 
             use_tools = message.get('tool_calls', [])
@@ -108,7 +137,6 @@ async def agent_runner(model: str, messages: List[Dict[str, str]],
                     api_base=api_base,
                     stream=True
                 )
-
 
         else:
             return response

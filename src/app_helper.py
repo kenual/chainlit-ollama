@@ -6,7 +6,7 @@ import chainlit as cl
 from chainlit.input_widget import Select
 
 from config import dump_config, load_config
-from llm_service import list_models
+from llm_service import get_available_models
 from template_utils import extract_template_name, extract_template_vars, render_template_with_vars
 from text_utils import merge_sentences, sentence_split
 
@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 async def initialize_session_chat_settings() -> None:
     settings = load_config(CONFIG[APP_SETTINGS])
     ollama_model_names = [model_object['model']
-                          for model_object in list_models()]
+                          for model_object in get_available_models()]
     if MODEL_ID in settings:
         selected_model = settings[MODEL_ID]
         if selected_model not in ollama_model_names:

@@ -162,8 +162,5 @@ uv.lock
 chainlit.md
 .files/
 
-# VSCode files
-.vscode/
-
 # User configuration files
 config/
