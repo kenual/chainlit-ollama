@@ -6,16 +6,14 @@ from any_llm import ProviderName
 @pytest.mark.asyncio
 async def test_llm_completion_live_no_mock_stream_gpt_oss_20b():
     # Arrange
-    model = "gpt-oss:20b"
+    model = f"{ProviderName.OLLAMA}:gpt-oss:20b"
     messages = [{"role": "user", "content": "hello"}]
-    provider = ProviderName.OLLAMA
     stream = True
 
     # Act
     response_iter = await llm_completion(
         model=model,
         messages=messages,
-        provider=provider,
         stream=stream
     )
 

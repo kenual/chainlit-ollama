@@ -2,7 +2,7 @@ import json
 import logging
 from typing import AsyncIterator, List, Dict, Optional
 
-from any_llm import ProviderName, acompletion
+from any_llm import acompletion
 from any_llm.types.completion import ChatCompletion, ChatCompletionChunk
 import chainlit as cl
 
@@ -11,12 +11,9 @@ logger = logging.getLogger(__name__)
 OLLAMA_API_BASE = "http://localhost:11434"
 
 
-from typing import Union
-
 async def llm_completion(
     model: str,
     messages: List[Dict[str, str]],
-    provider: ProviderName,
     tools: Optional[List[Dict[str, str]]] = None,
     api_base: Optional[str] = OLLAMA_API_BASE,
     stream: Optional[bool] = True
@@ -27,7 +24,6 @@ async def llm_completion(
     Args:
         model: Model name.
         messages: List of message dicts.
-        provider: Provider name.
         tools: Optional list of tool dicts.
         api_base: API base URL.
         stream: If True, returns an async iterator of ChatCompletionChunk; else returns ChatCompletion.
@@ -42,7 +38,6 @@ async def llm_completion(
         response = await acompletion(
             model=model,
             messages=messages,
-            provider=provider,
             tools=tools,
             api_base=api_base,
             stream=stream

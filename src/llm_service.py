@@ -7,9 +7,11 @@ from dotenv import load_dotenv
 from any_llm import ProviderName, list_models
 from pydantic import BaseModel
 
-from agent_helper import OLLAMA_API_BASE, agent_runner
+from agent_helper import agent_runner
 
 logger = logging.getLogger(__name__)
+
+CLOUD_SERVICE_PREFIX = "Cloud Service "
 
 
 class Model(BaseModel):
@@ -34,7 +36,7 @@ def list_provider_models(
     if provider == ProviderName.OLLAMA:
         prefix = ""
     else:
-        prefix = f"Cloud Service: {provider.value}."
+        prefix = f"{CLOUD_SERVICE_PREFIX}{provider.value}:"
 
     try:
         list_models_response = list_models(provider=provider, api_key=api_key)
@@ -62,9 +64,9 @@ def get_available_models() -> List[Model]:
     if os.getenv('TOGETHERAI_API_KEY'):
         cloud_service_models[:0] = [
             Model(name="DeepSeek-R1-Distill-lama-70B-free", provider=ProviderName.TOGETHER,
-                  display="Cloud Service: DeepSeek-R1-Distill-Llama-70B-free"),
+                  display=f"{CLOUD_SERVICE_PREFIX}together:DeepSeek-R1-Distill-Llama-70B-free"),
             Model(name="Llama-Vision-Free", provider=ProviderName.TOGETHER,
-                  display="Cloud Service: Llama-Vision-Free")
+                  display=f"{CLOUD_SERVICE_PREFIX}together:Llama-Vision-Free")
         ]
 
     # Local Ollama models
@@ -72,21 +74,13 @@ def get_available_models() -> List[Model]:
 
 
 async def chat_messages_send_response(model: str, messages: List[Dict[str, str]]) -> None:
-    any_llm_model = None
-    if 'Cloud Service: ' in model:
-        if 'command-r-plus' in model or "together_ai" in model:
-            any_llm_model = model.split("Cloud Service: ")[1]
+    if CLOUD_SERVICE_PREFIX in model:
+        any_llm_model = model.split(CLOUD_SERVICE_PREFIX)[1]
+    else:
+        any_llm_model = f"{ProviderName.OLLAMA.value}:{model}"
 
     # Send chat messages to Ollama and stream the response back to the client.
     translation_table = str.maketrans({'.': '_', ':': '#'})
-
-    if not any_llm_model:
-        # Ollama settings
-        any_llm_model = f"ollama_chat/{model}"
-        any_llm_api_base = OLLAMA_API_BASE
-    else:
-        # Cloud Service settings
-        any_llm_api_base = None
 
     # Get tools from all MCP connections
     mcp_tools = cl.user_session.get("mcp_tools", {})
@@ -106,7 +100,6 @@ async def chat_messages_send_response(model: str, messages: List[Dict[str, str]]
         model=any_llm_model,
         messages=messages,
         tools=all_tools,
-        api_base=any_llm_api_base,
         stream=all_tools is None
     )
 
