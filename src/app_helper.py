@@ -21,23 +21,24 @@ logger = logging.getLogger(__name__)
 
 async def initialize_session_chat_settings() -> None:
     settings = load_config(CONFIG[APP_SETTINGS])
-    ollama_model_names = [model_object['model']
-                          for model_object in get_available_models()]
+    available_models = [model_object.display
+                        for model_object in get_available_models()]
     if MODEL_ID in settings:
         selected_model = settings[MODEL_ID]
-        if selected_model not in ollama_model_names:
-            new_model = ollama_model_names[0]
-            logger.warning(f"Model '{selected_model}' is not available. Default to use '{new_model}'")
+        if selected_model not in available_models:
+            new_model = available_models[0]
+            logger.warning(
+                f"Model '{selected_model}' is not available. Default to use '{new_model}'")
             selected_model = new_model
     else:
-        selected_model = ollama_model_names[0]
+        selected_model = available_models[0]
 
     chat_settings = await cl.ChatSettings(
         [
             Select(
                 id=MODEL_ID,
-                label="Ollama Model",
-                values=ollama_model_names,
+                label="Model",
+                values=available_models,
                 initial_value=selected_model
             )
         ]
@@ -70,7 +71,7 @@ def append_message_to_session_history(message: str, elements: List = None) -> Li
         # Add images to the first chunk
         if index == 0 and images:
             message["images"] = images
-        messages.append(message)        
+        messages.append(message)
     logger.info(f'{len(chunks)} user message chunks')
     logger.info(json.dumps(messages, indent=2))
 
