@@ -11,7 +11,7 @@ from agent_helper import agent_runner
 
 logger = logging.getLogger(__name__)
 
-CLOUD_SERVICE_PREFIX = "Cloud Service "
+CLOUD_SERVICE_PREFIX = "☁️🔗 "
 
 
 class Model(BaseModel):
