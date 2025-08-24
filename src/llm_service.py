@@ -57,10 +57,9 @@ def list_provider_models(
 def get_available_models() -> List[Model]:
     load_dotenv()
     cloud_service_models: List[Model] = []
-    if os.getenv('COHERE_API_KEY'):
+    if os.getenv('CO_API_KEY'):
         cloud_service_models += list_provider_models(
-            provider=ProviderName.COHERE,
-            api_key=os.getenv('COHERE_API_KEY'))
+            provider=ProviderName.COHERE)
     if os.getenv('TOGETHERAI_API_KEY'):
         cloud_service_models[:0] = [
             Model(name="DeepSeek-R1-Distill-lama-70B-free", provider=ProviderName.TOGETHER,
