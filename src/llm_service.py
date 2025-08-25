@@ -167,9 +167,6 @@ async def chat_messages_send_response(model: str, messages: List[Dict[str, str]]
     else:
         any_llm_model = f"{ProviderName.OLLAMA.value}:{model}"
 
-    # Send chat messages to Ollama and stream the response back to the client.
-    translation_table = str.maketrans({'.': '_', ':': '#'})
-
     # Get tools from all MCP connections
     mcp_tools = cl.user_session.get("mcp_tools", {})
     all_tools = [
