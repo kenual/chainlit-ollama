@@ -89,7 +89,7 @@ async def call_tool(name: str, input: str) -> str:
 async def agent_runner(model: str, messages: List[Dict[str, str]],
                        tools: Optional[List[Dict[str, str]]] = None,
                        api_base: Optional[str] = OLLAMA_API_BASE,
-                       stream: Optional[bool] = True) -> AsyncIterator[ChatCompletionChunk]:
+                       stream: Optional[bool] = True) -> ChatCompletion | AsyncIterator[ChatCompletionChunk]:
     while True:
         response = await llm_completion(
             model=model,

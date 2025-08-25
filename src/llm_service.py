@@ -1,10 +1,11 @@
 import logging
 import os
 import time
-from typing import Dict, List
+from typing import AsyncIterator, Dict, List
 import chainlit as cl
 from dotenv import load_dotenv
 from any_llm import ProviderName, list_models
+from any_llm.types.completion import ChatCompletionChunk
 from pydantic import BaseModel
 
 from agent_helper import agent_runner
@@ -84,6 +85,60 @@ def get_available_models() -> List[Model]:
     return list_provider_models(provider=ProviderName.OLLAMA) + cloud_service_models
 
 
+async def stream_llm_response(
+    response: AsyncIterator[ChatCompletionChunk],
+    model: str
+) -> None:
+    """
+    Stream LLM assistant responses and "think" steps 
+    to the Chainlit client.
+
+    Args:
+        response (AsyncIterator[ChatCompletionChunk]): 
+            An asynchronous iterator of ChatCompletionChunk objects yielded
+            by the LLM, expected to have a 'choices' attribute with a token delta.
+        model (str): Name of the model (used as the message author).
+
+    Side Effects:
+        Streams tokens to the Chainlit UI in real time, sending regular and
+        'think' step outputs, and ends message on LLM stop.
+
+    Returns:
+        None
+    """
+    translation_table = str.maketrans({'.': '_', ':': '#'})
+    assistant_response = cl.Message(
+        content='', author=model.translate(translation_table))
+    async for part in response:
+        choice = part.choices[0]
+        if choice.finish_reason == 'stop':
+            await assistant_response.send()
+        else:
+            token = choice.delta.content
+            match token:
+                case '<think>':
+                    # Start a 'think' step and stream tokens until '</think>' is reached
+                    start_time = time.time()
+                    async with cl.Step(name="Thinking", type="llm") as think_step:
+                        async for think_part in response:
+                            think_choice = think_part.choices[0]
+                            think_token = think_choice.delta.content
+                            if think_token == '</think>':
+                                elapsed_time = time.time() - start_time
+                                minutes, seconds = map(
+                                    round, divmod(elapsed_time, 60))
+                                duration = f'{seconds} second{"s" if seconds != 1 else ""}'
+                                if minutes > 0:
+                                    duration = f'{minutes} minute{"s" if minutes != 1 else ""} {duration}'
+                                think_step.name = f'⚛️ Thought for {duration}'
+                                await think_step.send()
+                                break
+                            else:
+                                await think_step.stream_token(think_token)
+                case _:
+                    await assistant_response.stream_token(token)
+
+
 async def chat_messages_send_response(model: str, messages: List[Dict[str, str]]) -> None:
     if CLOUD_SERVICE_PREFIX in model:
         any_llm_model = model.split(CLOUD_SERVICE_PREFIX)[1]
@@ -114,35 +169,4 @@ async def chat_messages_send_response(model: str, messages: List[Dict[str, str]]
         stream=all_tools is not None
     )
 
-    assistant_response = cl.Message(
-        content='', author=model.translate(translation_table))
-    async for part in response:
-        choice = part.choices[0]
-
-        if choice.finish_reason == 'stop':
-            await assistant_response.send()
-        else:
-            token = choice.delta.content
-
-            match token:
-                case '<think>':
-                    # Start a 'think' step and stream tokens until '</think>' is reached
-                    start_time = time.time()
-                    async with cl.Step(name="Thinking", type="llm") as think_step:
-                        async for think_part in response:
-                            think_choice = think_part.choices[0]
-                            think_token = think_choice.delta.content
-                            if think_token == '</think>':
-                                elapsed_time = time.time() - start_time
-                                minutes, seconds = map(
-                                    round, divmod(elapsed_time, 60))
-                                duration = f'{seconds} second{"s" if seconds != 1 else ""}'
-                                if minutes > 0:
-                                    duration = f'{minutes} minute{"s" if minutes != 1 else ""} {duration}'
-                                think_step.name = f'⚛️ Thought for {duration}'
-                                await think_step.send()
-                                break
-                            else:
-                                await think_step.stream_token(think_token)
-                case _:
-                    await assistant_response.stream_token(token)
+    await stream_llm_response(response, model)
