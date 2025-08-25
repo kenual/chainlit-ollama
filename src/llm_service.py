@@ -5,7 +5,7 @@ from typing import AsyncIterator, Dict, List
 import chainlit as cl
 from dotenv import load_dotenv
 from any_llm import ProviderName, list_models
-from any_llm.types.completion import ChatCompletionChunk
+from any_llm.types.completion import ChatCompletion, ChatCompletionChunk
 from pydantic import BaseModel
 
 from agent_helper import agent_runner
@@ -83,6 +83,28 @@ def get_available_models() -> List[Model]:
 
     # Local Ollama models
     return list_provider_models(provider=ProviderName.OLLAMA) + cloud_service_models
+
+
+async def send_llm_response(model: str, response: ChatCompletion) -> None:
+    """
+    Send LLM assistant response to the Chainlit client.
+
+    Args:
+        model (str): Name of the model (used as the message author).
+        response (ChatCompletion): The ChatCompletion object returned by the LLM.
+
+    Side Effects:
+        Sends a message to the Chainlit UI with the content of the LLM's response.
+
+    Returns:
+        None
+    """
+    translation_table = str.maketrans({'.': '_', ':': '#'})
+    assistant_response = cl.Message(
+        content=response.choices[0].message.content,
+        author=model.translate(translation_table)
+    )
+    await assistant_response.send()
 
 
 async def stream_llm_response(
@@ -169,4 +191,7 @@ async def chat_messages_send_response(model: str, messages: List[Dict[str, str]]
         stream=all_tools is not None
     )
 
-    await stream_llm_response(response, model)
+    if isinstance(response, ChatCompletion):
+        await send_llm_response(model, response)
+    else:
+        await stream_llm_response(response, model)
