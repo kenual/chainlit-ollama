@@ -8,6 +8,7 @@ from any_llm import ProviderName, list_models
 from pydantic import BaseModel
 
 from agent_helper import agent_runner
+from llm_tools import think
 
 logger = logging.getLogger(__name__)
 
@@ -102,9 +103,7 @@ async def chat_messages_send_response(model: str, messages: List[Dict[str, str]]
         stream=all_tools is not None
     )
 
-    think_step = None
-    assistant_response = cl.Message(
-        content='', author=model.translate(translation_table))
+    assistant_response = cl.Message(content='', author=model.translate(translation_table))
     async for part in response:
         choice = part.choices[0]
 
@@ -115,23 +114,6 @@ async def chat_messages_send_response(model: str, messages: List[Dict[str, str]]
 
             match token:
                 case '<think>':
-                    start_time = time.time()
-                    think_step = cl.Step(name="⚛️ Thinking", type="llm")
-                    continue
-                case '</think>':
-                    elapsed_time = time.time() - start_time
-                    minutes, seconds = map(round, divmod(elapsed_time, 60))
-
-                    duration = f'{seconds} second{"s" if seconds > 0 else ""}'
-                    if minutes > 0:
-                        duration = f'{minutes} minute{"s" if minutes > 1 else ""} {duration}'
-
-                    think_step.name = f'⚛️ Thought for {duration}'
-                    await think_step.send()
-                    think_step = None
-                    continue
-
-            if think_step:
-                await think_step.stream_token(token)
-            else:
-                await assistant_response.stream_token(token)
+                    await think(response)
+                case _:
+                    await assistant_response.stream_token(token)
