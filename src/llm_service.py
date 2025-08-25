@@ -40,13 +40,25 @@ def list_provider_models(
 
     try:
         list_models_response = list_models(provider=provider, api_key=api_key)
+        if provider == ProviderName.COHERE:
+            models = sorted(
+                (
+                    model
+                    for model in list_models_response
+                    if not (model.id.startswith("embed") or model.id.startswith("rerank"))
+                ),
+                key=lambda model: model.id
+            )
+        else:
+            models = sorted(list_models_response, key=lambda model: model.id)
+
         provider_models = [
             Model(
                 name=model.id,
                 provider=provider,
                 display=prefix + model.id,
             )
-            for model in list_models_response
+            for model in models
         ]
         return provider_models
     except Exception as error:
@@ -102,7 +114,8 @@ async def chat_messages_send_response(model: str, messages: List[Dict[str, str]]
         stream=all_tools is not None
     )
 
-    assistant_response = cl.Message(content='', author=model.translate(translation_table))
+    assistant_response = cl.Message(
+        content='', author=model.translate(translation_table))
     async for part in response:
         choice = part.choices[0]
 
@@ -121,7 +134,8 @@ async def chat_messages_send_response(model: str, messages: List[Dict[str, str]]
                             think_token = think_choice.delta.content
                             if think_token == '</think>':
                                 elapsed_time = time.time() - start_time
-                                minutes, seconds = map(round, divmod(elapsed_time, 60))
+                                minutes, seconds = map(
+                                    round, divmod(elapsed_time, 60))
                                 duration = f'{seconds} second{"s" if seconds != 1 else ""}'
                                 if minutes > 0:
                                     duration = f'{minutes} minute{"s" if minutes != 1 else ""} {duration}'
