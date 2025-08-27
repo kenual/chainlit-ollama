@@ -128,6 +128,28 @@ async def stream_llm_response(
         choice = part.choices[0]
         if choice.finish_reason == 'stop':
             await assistant_response.send()
+        elif choice.delta.reasoning:
+            # Handle reasoning tokens (for 'reasoning' steps)
+            start_time = time.time()
+            async with cl.Step(name="Reasoning", type="llm") as reasoning_step:
+                await reasoning_step.stream_token(choice.delta.reasoning.content)
+                async for reasoning_part in response:
+                    reasoning_choice = reasoning_part.choices[0]
+                    if reasoning_choice.delta.reasoning:
+                        reasoning_token = reasoning_choice.delta.reasoning.content
+                        await reasoning_step.stream_token(reasoning_token)
+                    else:
+                        # End of reasoning tokens
+                        elapsed_time = time.time() - start_time
+                        minutes, seconds = map(round, divmod(elapsed_time, 60))
+                        duration = f'{seconds} second{"s" if seconds != 1 else ""}'
+                        if minutes > 0:
+                            duration = f'{minutes} minute{"s" if minutes != 1 else ""} {duration}'
+                        reasoning_step.name = f'⚛️ Reasoned for {duration}'
+                        await reasoning_step.send()
+                        token = reasoning_choice.delta.content
+                        await assistant_response.stream_token(token)
+                        break
         else:
             token = choice.delta.content
             match token:
@@ -178,7 +200,7 @@ async def chat_messages_send_response(model: str, messages: List[Dict[str, str]]
         model=any_llm_model,
         messages=messages,
         tools=all_tools,
-        stream=all_tools is not None
+        stream=True
     )
 
     if isinstance(response, ChatCompletion):
