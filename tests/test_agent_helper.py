@@ -75,11 +75,11 @@ async def test_llm_completion_live_tool_use_stream_gpt_oss_20b():
         else:
             print(delta.content, end='')
         chunks.append(chunk)
-        if delta.tool_calls is not None:
+        if delta.tool_calls:
             tool_calls = delta.tool_calls
             break
     print()
 
     assert len(chunks) > 0, "Should receive at least one chunk"
-    assert tool_calls is not None, "Should include a tool call in streamed output"
+    assert tool_calls, "Should include a tool call in streamed output"
     assert tool_calls[0].function.name == 'get_stock_price', "Wrong function name"
