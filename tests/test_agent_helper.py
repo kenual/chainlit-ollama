@@ -48,10 +48,21 @@ async def test_llm_completion_live_tool_use_stream_gpt_oss_20b():
         },
     }
     tools = [get_stock_price]
+    function_names = [tool['function']['name'] for tool in tools]
 
     # Message that should trigger tool use
     messages = [
-        {"role": "user", "content": "Get the stock price of AAPL. Only use provided functions if helpful"}
+        {"role": "system", "content": (
+            "You are a concise and helpful assistant. "
+            "Your goal is to fulfill the user’s requests accurately. "
+            f"If one of the provided functions {function_names} is the best way to respond, "
+            "call the function with valid arguments. "
+            "Only call a function if you have enough information; otherwise, ask the user for clarification. "
+            "When calling a function, output only the function call. "
+            "If no function is relevant, respond directly in natural language. "
+            "Always prioritize clarity, truthfulness, and usefulness."
+        )},
+        {"role": "user", "content": "Get the stock price of AAPL"}
     ]
 
     model = f"{ProviderName.OLLAMA}:gpt-oss:20b"
