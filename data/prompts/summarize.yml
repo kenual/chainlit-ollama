@@ -1,0 +1,17 @@
+id: summarize
+name: Summarize Content
+description: Summarize the provided text into a set number of bullet points.
+inputs:
+  - name: text
+    type: string
+    required: true
+    description: "The text to summarize"
+  - name: bullets
+    type: integer
+    required: false
+    default: 5
+    description: "Number of bullet points"
+template: |
+  Summarize the following content into {{ bullets }} concise bullet points:
+  ---
+  {{ text }}
