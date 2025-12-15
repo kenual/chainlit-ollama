@@ -9,7 +9,7 @@ Interactive Chainlit UI for local LLMs via Ollama, with optional MCP tool integr
 - MCP integration for external tools (optional)
 
 ## Prerequisites
-- Python 3.13
+- Python 3.13.x
 - uv (https://docs.astral.sh/uv/getting-started/installation/)
 - Ollama installed and at least one model pulled (e.g., `ollama pull llama3.1`)
 
@@ -23,12 +23,12 @@ Optional (for MCP):
 
 2) Sync project dependencies:
 ```bash
-uv sync --all-extras
+uv sync --extra test
 ```
 
-3) (Optional) Verify imports:
+3) (Optional) Verify import of Chainlit:
 ```bash
-uv run python -c "import chainlit; import app_helper"
+uv run python -c "import chainlit"
 ```
 
 ## Configuration
@@ -40,7 +40,7 @@ uv run python -c "import chainlit; import app_helper"
 Run the Chainlit app via the Python entry in `src/app.py`:
 
 ```bash
-uv run python src/app.py
+uv run src/app.py
 ```
 
 This starts Chainlit using `run_chainlit(__file__)` defined in `main()` of `src/app.py`.
@@ -62,15 +62,11 @@ Open the URL printed in the terminal (typically http://localhost:8000).
 ```bash
 uv run pytest -q
 ```
-- Lint/format (if configured in pyproject):
-```bash
-uv run ruff check .
-uv run ruff format .
-```
+- Lint/format: Not configured by default in this repo.
 
 ## Troubleshooting
 - “Module not found” errors: Run commands from the repo root and use `uv run` so dependencies and paths are correct.
-- Chainlit doesn’t start: Confirm uv is installed, dependencies are synced (`uv sync --all-extras`), then run `uv run python src/app.py`.
+- Chainlit doesn’t start: Confirm uv is installed, dependencies are synced (`uv sync` or `uv sync --extra test`), then run `uv run src/app.py`.
 - Missing or incorrect model: Ensure the configured model is pulled in Ollama (`ollama list`) and the Ollama service is running.
 
 ## License
