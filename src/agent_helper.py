@@ -1,8 +1,8 @@
 import json
 import logging
-from typing import AsyncIterator, List, Dict, Optional
+from typing import Any, AsyncIterator, List, Dict, Optional
 
-from any_llm import acompletion
+from any_llm import acompletion, prepare_tools
 from any_llm.types.completion import ChatCompletion, ChatCompletionChunk
 import chainlit as cl
 
@@ -14,7 +14,7 @@ OLLAMA_API_BASE = "http://localhost:11434"
 async def llm_completion(
     model: str,
     messages: List[Dict[str, str]],
-    tools: Optional[List[Dict[str, str]]] = None,
+    tools: Optional[List[Dict[str, Any]]] = None,
     api_base: Optional[str] = OLLAMA_API_BASE,
     stream: Optional[bool] = True
 ) -> ChatCompletion | AsyncIterator[ChatCompletionChunk]:
@@ -35,10 +35,11 @@ async def llm_completion(
         Exception: If the completion call fails.
     """
     try:
+        OpenAI_tools = prepare_tools(tools)
         response = await acompletion(
             model=model,
             messages=messages,
-            tools=tools,
+            tools=OpenAI_tools,
             api_base=api_base,
             stream=stream
         )
