@@ -164,3 +164,6 @@ chainlit.md
 
 # User configuration files
 config/
+
+# Giga files
+.giga/
